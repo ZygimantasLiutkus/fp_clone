@@ -2,7 +2,7 @@
 
 # Implementing `jq` in Haskell
 
-`jq` [(stedolan.github.io/jq)](https://stedolan.github.io/jq/) is a JSON processor.
+`jq` ([stedolan.github.io/jq](https://stedolan.github.io/jq/)) is a JSON processor.
 It's built in the spirit of Unix: doing one thing, but doing it well.
 Think of `awk`, `sed` or `grep`, but for JSON.
 And we're going to build its clone in Haskell!
@@ -50,7 +50,10 @@ For full formal definition of JSON take a look at:
 
 ### Project structure
 
-To get you started, this repository provides a basic template for the project. The `src` folder contains all the source files needed of the program. The program is split into the library (`Jq`), which contains all the code and a an executable (`exe`), which simply runs it. The template code you are given already contains the functionality to parse `null` as an input and the identity `.` as a filter.
+To get you started, this repository provides a basic template for the project.
+The `src` folder contains all the source files needed of the program.
+The program is split into the library (`Jq`), which contains all the code and a an executable (`exe`), which simply runs it.
+The template code you are given already contains the functionality to parse `null` as an input and the identity `.` as a filter.
 
 - `JSON.hs` contains a datatype `JSON` to represent JSON data. It only has a single constructor `JNull`, so you will need to extend it with additional constructors to represent all kinds of `JSON` data. You're also required to implement by hand `Show` and `Eq` type-class isntances for this datatype.
 - `Filters.hs` contains a datatype `Filter` to represent `jq` filters. It has a single constructor for identity filter, so you will need to extend it too.
@@ -59,15 +62,15 @@ To get you started, this repository provides a basic template for the project. T
 - Finally, `Main.hs` contains the `main` function that collects the inputs, compiles the filter and runs it. You do not need to edit it yourself.
 - `Parsing` contains parsing library by Graham Hutton.
 
-The `test` directory contains some (extensible) tests for you to run. More information in the "Testing" section below
+The `test` directory contains some (extensible) tests for you to run. More information in the "Testing" section below.
 
 You are free to add additional modules to your project should you need them, but we ask you to keep the existing structure intact to make grading easier.
 
 In addition to the functions from the Haskell `Prelude`, you are allowed to use
 functions from the following packages:
 
-- `containers` (https://hackage.haskell.org/package/containers)
-- `QuickCheck` (https://hackage.haskell.org/package/QuickCheck)
+* `containers` (https://hackage.haskell.org/package/containers)
+* `QuickCheck` (https://hackage.haskell.org/package/QuickCheck)
 
 If you want to use these packages, you should uncomment the corresponding
 line(s) in `JqClone.cabal`. Using other packages or copy-pasting code you found
@@ -222,7 +225,7 @@ If you are unsure where to start or feeling a bit lost, you can approach the pro
 9. Implement recursive descent operator.
 10. Catch up on everything you skipped above. Write some tests, squash some bugs!
 
-#### Developing a project without parser.
+#### Developing a project without parser
 
 You probably noticed that if you follow the suggested implementation order you won't be able to test all the features you're working on from the shell until week 5.
 Our suggestion is to rely on GHCi and QuickCheck instead.
