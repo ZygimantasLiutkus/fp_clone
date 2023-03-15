@@ -7,6 +7,8 @@ stages:
 
 build:
   stage: build
+  artifacts:
+    expire_in: 4 weeks
   before_script:
   - cp -r ~/.cabal .
   - cp -r /dist-newstyle .
@@ -14,8 +16,11 @@ build:
   script:
   - cabal v2-build exe:jq-clone
 
+
 from-upstream:
   stage: test
+  artifacts:
+    expire_in: 4 weeks
   before_script:
   - cp -r ~/.cabal .
   - cp -r /dist-newstyle .
@@ -25,6 +30,8 @@ from-upstream:
 
 week3:
   stage: test
+  artifacts:
+    expire_in: 4 weeks
   before_script:
   - cp -r ~/.cabal .
   - cp -r /dist-newstyle .
@@ -34,6 +41,8 @@ week3:
 
 week4:
   stage: test
+  artifacts:
+    expire_in: 4 weeks
   before_script:
   - cp -r ~/.cabal .
   - cp -r /dist-newstyle .
@@ -43,6 +52,8 @@ week4:
 
 unit-tests:
   stage: test
+  artifacts:
+    expire_in: 4 weeks
   before_script:
   - cp -r ~/.cabal .
   - cp -r /dist-newstyle .
