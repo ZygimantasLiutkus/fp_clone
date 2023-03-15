@@ -101,8 +101,7 @@ prop_computes_pipe f g         = total $ filterPipeSC f g
 prop_computes_comma f g        = total $ filterCommaSC f g
 
 prop_identity_refl             = filterIdentitySC  == filterIdentitySC
-prop_indexing_refl  f g        = f == g ==>
-                                 filterStringIndexingSC f == filterStringIndexingSC g
+prop_indexing_refl  f          = filterStringIndexingSC f == filterStringIndexingSC f
 prop_pipe_refl e f g h         = e == g && f == h ==>
                                  filterPipeSC e f == filterPipeSC g h
 prop_comma_refl e f g h        = e == g && f == h ==>
