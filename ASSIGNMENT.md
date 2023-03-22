@@ -66,7 +66,7 @@ The `test` directory contains some (extensible) tests for you to run. More infor
 
 You are free to add additional modules to your project should you need them, but we ask you to keep the existing structure intact to make grading easier.
 
-In addition to the functions from the Haskell `Prelude`, you are allowed to use
+In addition to the functions from the Haskell [`base`](https://hackage.haskell.org/package/base-4.17.0.0), you are allowed to use
 functions from the following packages:
 
 * `containers` (https://hackage.haskell.org/package/containers)
