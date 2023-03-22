@@ -86,12 +86,12 @@ This section describes the minimum functionality we expect your implementation t
   `echo '{"this" : "that"}' | jq '.'`
 2. (15 points) Parse and pretty-print valid JSONs.  
    This means, that your implementation should be able to handle  
-   * `null`
-   * Numbers (floating-point `1.0` and E-notation included `1.0E+20`)
-   * Strings (with support for escape characters `"Hello, \"world\"!"` and unicode characters)
-   * Booleans
-   * Arrays
-   * JSON Objects
+   1. (0 points)`null`
+   2. (3 points) Numbers (floating-point `1.0` and E-notation included `1.0E+20`)
+   3. (3 points) Strings (with support for escape characters `"Hello, \"world\"!"` and unicode characters)
+   4. (1 point) Booleans
+   5. (4 points) Arrays
+   6. (4 points) JSON Objects
 
    > *Hint*: Add constructors to the `JSON` type in `src/Jq/Json.hs` and define a parser for each constructor in `src/Jq/JParser.hs`  
 
