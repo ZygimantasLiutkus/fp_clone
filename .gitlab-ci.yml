@@ -1,4 +1,5 @@
-image: gitlab.ewi.tudelft.nl:4242/cse3100/admin/docker-ci-image-builder@sha256:c90d2992bfdea2c9dd7a3c07c874487c05e234ab88aeb49e450ad70567e8ff14
+default:
+  image: gitlab.ewi.tudelft.nl:4242/cse3100/admin/docker-ci-image-builder@sha256:c9786219f357d921e2d8dcc76d7fb27b23eee662c4a2749c0e25b8830721c9fa
 
 
 stages:
