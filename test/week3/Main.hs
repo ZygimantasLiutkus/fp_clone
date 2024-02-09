@@ -57,6 +57,12 @@ arbitraryObject x = frequency [
                            })
                     ]
 
+genSafeChar :: Gen Char
+genSafeChar = elements (['a'..'z'] ++ ['A'.. 'Z'] ++ ['0'..'9'])
+
+genSafeString :: Gen String
+genSafeString = listOf genSafeChar
+
 instance Arbitrary JSON where
     arbitrary = arbitrary' 10
 
@@ -69,12 +75,8 @@ prop_computes_bool b = total $ jsonBoolSC b
 prop_computes_array xs = total $ jsonArraySC xs
 prop_computes_object xs = total $ jsonObjectSC xs
 
-prop_null_refl      = jsonNullSC      == jsonNullSC
-prop_number_refl n  = jsonNumberSC n  == jsonNumberSC n
-prop_string_refl s  = jsonStringSC s  == jsonStringSC s
-prop_bool_refl   b  = jsonBoolSC b    == jsonBoolSC b
-prop_array_refl  xs = jsonArraySC xs  == jsonArraySC xs
-prop_object_refl xs = jsonObjectSC xs == jsonObjectSC xs
+prop_refl :: JSON -> Bool
+prop_refl c = c == c
 
 prop_null_not_equals_number n  = jsonNullSC /= jsonNumberSC n
 prop_null_not_equals_string s  = jsonNullSC /= jsonStringSC s
@@ -113,8 +115,11 @@ prop_object_not_equals_bool   xs b  = jsonObjectSC xs /= jsonBoolSC b
 prop_object_not_equals_array  xs ys = jsonObjectSC xs /= jsonArraySC ys
 
 prop_show_null               = show jsonNullSC == "null"
-prop_show_number n           = show (jsonNumberSC n) == show n
-prop_show_string s           = show (jsonStringSC s) == '\"' : s ++ "\""
+prop_show_number n           = within 10000 ( show (jsonNumberSC n) == show n)
+prop_show_string             = forAll genSafeString $ \s -> show (jsonStringSC s) == '\"' : s ++ "\""
+prop_show_string_not_print   = show (jsonStringSC "\0019") == '\"' : "\\u0013" ++ "\""
+prop_show_string_unicode     = show (jsonStringSC "\1234") == '\"' : "\1234" ++ "\""
+
 prop_show_bool_true          = show (jsonBoolSC True) == "true"
 prop_show_bool_false         = show (jsonBoolSC False) == "false"
 prop_show_empty_array        = show (jsonArraySC []) == "[]"
@@ -130,14 +135,6 @@ tests = testGroup "Week 3 tests" [
       , testProperty "Constructor for booleans computes" prop_computes_bool
       , testProperty "Constructor for array computes" prop_computes_array
       , testProperty "Constructor for objects computes" prop_computes_object
-    ],
-    testGroup "Reflection instances" [
-        testProperty "Reflection null" prop_null_refl
-      , testProperty "Reflection number" prop_number_refl
-      , testProperty "Reflection string" prop_string_refl
-      , testProperty "Reflection bool" prop_bool_refl
-      , testProperty "Reflection array" prop_array_refl
-      , testProperty "Reflection object" prop_object_refl
     ],
     testGroup "Inequality null" [
         testProperty "Inequality null number" prop_null_not_equals_number
@@ -181,10 +178,15 @@ tests = testGroup "Week 3 tests" [
       , testProperty "Inequality object bool" prop_object_not_equals_bool
       , testProperty "Inequality object array" prop_object_not_equals_array
     ],
+    testGroup "Reflexivity of equality" [
+        testProperty "Every JSON object is equal to itself" prop_refl
+    ],
     testGroup "Show instances" [
         testProperty "Show null" prop_show_null
       , testProperty "Show number" prop_show_number
       , testProperty "Show string" prop_show_string
+      , testProperty "Show string with non-printable character" prop_show_string_not_print
+      , testProperty "Show string with printable unicode character" prop_show_string_unicode
       , testProperty "Show true" prop_show_bool_true
       , testProperty "Show false" prop_show_bool_false
       , testProperty "Show empty array" prop_show_empty_array
