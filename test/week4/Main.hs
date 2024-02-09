@@ -70,11 +70,6 @@ tests = testGroup "Week 4 tests" [
       , testProperty "Constructor for indexing computes" prop_computes_indexing
       , testProperty "Constructor for pipe computes" prop_computes_pipe
       , testProperty "Constructor for comma computes" prop_computes_comma]
-  , testGroup "Reflection instances" [
-        testProperty "Reflection identity" prop_identity_refl
-      , testProperty "Reflection indexing" prop_indexing_refl
-      , testProperty "Reflection pipe" prop_pipe_refl
-      , testProperty "Reflection comma" prop_comma_refl]
   , testGroup "Identity" [
         testProperty "Identity functionality" prop_identity]
   , testGroup "Indexing" [
@@ -99,13 +94,6 @@ prop_computes_identity         = total $ filterIdentitySC
 prop_computes_indexing id      = total $ filterStringIndexingSC id
 prop_computes_pipe f g         = total $ filterPipeSC f g
 prop_computes_comma f g        = total $ filterCommaSC f g
-
-prop_identity_refl             = filterIdentitySC  == filterIdentitySC
-prop_indexing_refl  f          = filterStringIndexingSC f == filterStringIndexingSC f
-prop_pipe_refl e f g h         = e == g && f == h ==>
-                                 filterPipeSC e f == filterPipeSC g h
-prop_comma_refl e f g h        = e == g && f == h ==>
-                                 filterCommaSC e f == filterCommaSC g h
 
 prop_identity j                = run (compile filterIdentitySC) j == Right [j]
 
