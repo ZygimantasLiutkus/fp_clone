@@ -2,7 +2,7 @@
 
 # Implementing `jq` in Haskell
 
-`jq` ([stedolan.github.io/jq](https://stedolan.github.io/jq/)) is a JSON processor.
+`jq` ([https://jqlang.github.io/jq/](https://jqlang.github.io/jq/)) is a JSON processor.
 It's built in the spirit of Unix: doing one thing, but doing it well.
 Think of `awk`, `sed` or `grep`, but for JSON.
 And we're going to build its clone in Haskell!
@@ -30,8 +30,8 @@ First let's see what `jq` is all about.
 You will find it in the [`JQ-CASE-STUDY.md`](./JQ-CASE-STUDY.md)
 
 ### Documentation and more
-There's a [tutorial](https://stedolan.github.io/jq/tutorial/), which introduces some of the basic features of the tool.
-Then there's official [documentation](https://stedolan.github.io/jq/manual).
+There's a [tutorial](https://jqlang.github.io/jq/tutorial/), which introduces some of the basic features of the tool.
+Then there's official [documentation](https://jqlang.github.io/jq/manual/).
 And finally, you can play with `jq` in your browser on [jqplay.org](https://jqplay.org/).
 
 > **NOTE** : for some inputs that contain escaped characters,
@@ -97,7 +97,7 @@ This section describes the minimum functionality we expect your implementation t
 
    Please also note that since for grading purposes we will be test your program as whole, we have to rely heavily on the correctness of implementation for pretty-printing and parsing. So while this subtask might seem relatively easy, a big part of your grade depends on it transitively.
 
-3. (45 points total) Implement all [basic filters](https://stedolan.github.io/jq/manual/#Basicfilters).
+3. (45 points total) Implement all [basic filters](https://jqlang.github.io/jq/manual/#basic-filters).
    In particular:
    1. (0 points) Identity filter `.`, which returns an object given to it.
    2. (2 point) Parenthesis '()', used for grouping operations.
@@ -125,7 +125,7 @@ This section describes the minimum functionality we expect your implementation t
    `echo 'null' | jq '{"this" : [42]}'` (this produces `{"this": [42]})`).  
    For this task you're asked to implement only the "simple" ones: numbers, booleans, strings, arrays without iteration (`[1,2,.field]`, not `[.[]]`), objects.
 
-5. (5 points) [Recursive descent operator](https://stedolan.github.io/jq/manual/#RecursiveDescent:..) `..` iterates over all sub-values of the current value, including itself.  
+5. (5 points) [Recursive descent operator](https://jqlang.github.io/jq/manual/#recursive-descent) `..` iterates over all sub-values of the current value, including itself.  
   For example, `echo [{"a" : 1}] | jq '..'` results in
 
   ```json
@@ -163,7 +163,7 @@ before you are confident in your implementation of the basic part.
   In case of doubt, you can experiment with the reference implementation and follow what it does.
   In order for this subtask to count your implementation should handle all JSON values, have all basic filters, and all object constructors.
 
-* (10 points) [Conditionals and comparisons](https://stedolan.github.io/jq/manual/#ConditionalsandComparisons):
+* (10 points) [Conditionals and comparisons](https://jqlang.github.io/jq/manual/#conditionals-and-comparisons):
   * "Equal" and "not equal" operators `==`, `!=`, which take two JSON values and output a Boolean.
   * If-then-else expression `if A then B else C end`.
   * Comparison operators for numbers `<`, `<=`, `>`, `>=`
@@ -171,20 +171,20 @@ before you are confident in your implementation of the basic part.
 
    In order for this subtask to count your implementation should handle all JSON values and have all basic filters.
 
-* (10 points) Arithmetic expressions: `+,-,*,/`, described [here](https://stedolan.github.io/jq/manual/#Builtinoperatorsandfunctions).  
+* (10 points) Arithmetic expressions: `+,-,*,/`, described [here](https://jqlang.github.io/jq/manual/#builtin-operators-and-functions).  
   Mind that these operations operate not only on numbers, but also on other JSON values such as arrays, strings, and objects.  
   In order for this subtask to count your implementation should handle all JSON values, have all basic filters, and simple object constructors.
 
-* (10 points) [Try-catch expressions](https://stedolan.github.io/jq/manual/#try-catch) `try op1 catch expr` which tries to execute `op1` and if exception appears, returns `expr`.  
+* (10 points) [Try-catch expressions](https://jqlang.github.io/jq/manual/#try-catch) `try op1 catch expr` which tries to execute `op1` and if exception appears, returns `expr`.  
   In order for this subtask to count your implementation should handle all JSON values and have all basic filters.
 
-* (12 points) [Syntactic variables](https://stedolan.github.io/jq/manual/#Variable/SymbolicBindingOperator:...as$identifier|...) `expr as $id | op`, which allow you to bind the value expr to identifier `id` before passing it further to `op`.  
+* (12 points) [Syntactic variables](https://jqlang.github.io/jq/manual/#variable-symbolic-binding-operator) `expr as $id | op`, which allow you to bind the value expr to identifier `id` before passing it further to `op`.  
   In order for this subtask to count your implementation should handle all JSON values and have all basic filters.
 
-* (15 points) [Reduction operator](https://stedolan.github.io/jq/manual/#Reduce) `reduce`, which corresponds to a fold over results returned by the previous operation.  
+* (15 points) [Reduction operator](https://jqlang.github.io/jq/manual/#reduce) `reduce`, which corresponds to a fold over results returned by the previous operation.  
   In order for this subtask to count your implementation should handle all JSON values and have all basic filters.
 
-* (15 points) [Functions](https://stedolan.github.io/jq/manual/#DefiningFunctions), which allows you to define syntactical functions in jq filters.  
+* (15 points) [Functions](https://jqlang.github.io/jq/manual/#defining-functions), which allows you to define syntactical functions in jq filters.  
   In order for this subtask to count your implementation should handle all JSON values, have all basic filters, and simple object constructors.
 
 ## Approaching the project
@@ -229,7 +229,7 @@ If you are unsure where to start or feeling a bit lost, you can approach the pro
 
 You probably noticed that if you follow the suggested implementation order you won't be able to test all the features you're working on from the shell until week 5.
 Our suggestion is to rely on GHCi and QuickCheck instead.
-* For QuickCheck introduction you can consult lecture slides, the [blog post](https://jesper.sikanda.be/posts/quickcheck-intro.html) and included tests for week 3 and 4.
+* For QuickCheck introduction you can consult lecture slides, the [blog post](https://jesper.cx/posts/quickcheck-intro.html) and included tests for week 3 and 4.
 * For GHCi documentation you can consult the [official manual](https://downloads.haskell.org/ghc/latest/docs/html/users_guide/ghci.html) or Chapter 2 (First steps) for Graham Hutton's book.
   To start GHCi in the project navigate to the directory where the project is located and execute `stack ghci`(or `cabal repl`) in the shell.  
   By default this will start a REPL with the Main module loaded. You can then evaluate snippets you're interested in.
