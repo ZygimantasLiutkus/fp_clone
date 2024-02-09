@@ -109,7 +109,7 @@ null
 {"a":1, "b":2, "a$2":4}
 
 #
-# Strings
+# Unicode input
 #
 
 .
@@ -119,3 +119,40 @@ null
 .
 "\u0000"
 "\u0000"
+
+#
+# Null input
+#
+
+.[0:10]
+null
+null
+
+.[0:10]?
+null
+null
+
+.[0]
+null
+null
+
+.[0]?
+null
+null
+
+.["foo"]
+null
+null
+
+.["foo"]?
+null
+null
+
+.foo
+null
+null
+
+.foo?
+null
+null
+>>>>>>> f327526 (add null input tests to upstream test suite)
