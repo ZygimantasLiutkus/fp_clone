@@ -19,7 +19,7 @@ However, you are allowed to discuss the assignment with other students and ask g
 See [www.tudelft.nl/en/student/legal-position/fraud-plagiarism/](https://www.tudelft.nl/en/student/legal-position/fraud-plagiarism/) for the general TU Delft policy regarding fraud.
 
 It is expected that completing the project will take you approximately 30-40 hours.
-When you have finished the project, you should hand in your final solution via Weblab before **Sunday, 23rd of April, 23:59**.
+When you have finished the project, you should hand in your final solution via Weblab before **Friday, 19th of April, 23:59**.
 Detailed instructions for submitting your solution will appear on Weblab.
 
 ## Introducing `jq`
