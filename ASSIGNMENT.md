@@ -45,6 +45,7 @@ Below you'll find a list of requirements for your implementation.
 Note that many of the descriptions of the features you have to implement are rather brief. In those cases it is part of the assignment that you pin down the exact semantics of jq yourself, either by consulting the documentation linked above or testing examples against the original implementation.
 
 For full formal definition of JSON take a look at:
+  * The [JSON parsing diagrams](https://www.json.org/json-en.html)
   * The [wiki](https://en.wikipedia.org/wiki/JSON)
   * The [rfc](https://tools.ietf.org/rfc/rfc8259.txt)
 
@@ -205,7 +206,7 @@ While you're not required to submit your project earlier and can still do everyt
 To help you approach the task gradually we chose the following stages to provide feedback on:  
 * Week **3**. Define JSON and its typeclass instances for Eq, Show.
 * Week **4**. Define some filters, start compiling programs.
-* Week **5**. Define parsers. Start implementing the rest of the base project features.
+* Define parsers after the lecture on monadic parsing. Also start implementing the rest of the base project features.
 * Week **6** and onwards. Implement features from the advanced project.
 
 ### Suggested implementation order
@@ -218,7 +219,7 @@ If you are unsure where to start or feeling a bit lost, you can approach the pro
 4. Implement arrays and array operations.
 5. Write a parser for numbers and strings.  
    Maybe skip floating point and escape characters for now -- you can always add them later.
-6. Extend the parsing to handle objects.
+6. Extend the parsing to handle objects (see the [JSON parsing diagrams](https://www.json.org/json-en.html)).
 7. Write a parser for filters.
    At this point you should have a program that can be ran from the command-line, yay!
 8. Add value construction and make sure that composed operations have the right semantics.
@@ -227,7 +228,7 @@ If you are unsure where to start or feeling a bit lost, you can approach the pro
 
 #### Developing a project without parser
 
-You probably noticed that if you follow the suggested implementation order you won't be able to test all the features you're working on from the shell until week 5.
+You probably noticed that if you follow the suggested implementation order you won't be able to test all the features you're working on from the shell until you have implemented parsers.
 Our suggestion is to rely on GHCi and QuickCheck instead.
 * For QuickCheck introduction you can consult lecture slides, the [blog post](https://jesper.cx/posts/quickcheck-intro.html) and included tests for week 3 and 4.
 * For GHCi documentation you can consult the [official manual](https://downloads.haskell.org/ghc/latest/docs/html/users_guide/ghci.html) or Chapter 2 (First steps) for Graham Hutton's book.
