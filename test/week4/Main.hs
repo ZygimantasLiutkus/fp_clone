@@ -83,11 +83,18 @@ tests = testGroup "Week 4 tests" [
   , testGroup "Pipe" [
         testProperty "Pipe with identity on the right" prop_pipe_identity_right
       , testProperty "Pipe with identity on the left" prop_pipe_identity_left
-      , testProperty "An error on the left of the pipe leads to an error" prop_pipe_carries_error]
+      , testProperty "An error on the left of the pipe leads to an error" prop_pipe_carries_error
+      , testProperty "Using a pipe to do nested indexing" prop_pipe_index
+      , testProperty "Multiple pipes with an error in the first one" prop_pipe_err_first
+      , testProperty "Multiple pipes with an error in the last one" prop_pipe_err_last]
   , testGroup "Comma" [
         testProperty "Comma with identical filters leads to duplicate output" prop_comma_duplicates
       , testProperty "An error on the left of the comma leads to an error" prop_comma_carries_error
-      , testProperty "Comma with two identities duplcates the input" prop_comma_identity]
+      , testProperty "Comma with two identities duplicates the input" prop_comma_identity
+      , testProperty "Comma with a failing left index fails" prop_comma_index_error_l
+      , testProperty "Comma with a failing right index fails" prop_comma_index_error_r
+      , testProperty "Comma with index" prop_comma_index
+      , testProperty "Comma with pipe" prop_comma_pipe]
     ]
 
 prop_computes_identity         = total $ filterIdentitySC
@@ -110,6 +117,9 @@ prop_pipe_identity_right f j   = run (compile $ filterPipeSC f filterIdentitySC)
 prop_pipe_identity_left f j    = run (compile $ filterPipeSC filterIdentitySC f) j == compile f j
 prop_pipe_carries_error f g j  = isLeft (run (compile f) j) ==>
                                  isLeft (run (compile $ filterPipeSC f g) j)
+prop_pipe_index k1 k2 v        = run (compile $ filterPipeSC (filterStringIndexingSC k1) (filterStringIndexingSC k2)) (jsonObjectSC [(k1, jsonObjectSC [(k2, v)])]) == Right [v]
+prop_pipe_err_first k1 k2 k3   = isLeft $ run (compile $ filterPipeSC (filterStringIndexingSC k1) (filterPipeSC (filterStringIndexingSC k2)  (filterStringIndexingSC k3) )) (jsonNumberSC 42)
+prop_pipe_err_last k1 k2 k3    = isLeft $ run (compile $ filterPipeSC (filterStringIndexingSC k1) (filterPipeSC (filterStringIndexingSC k2)  (filterStringIndexingSC k3) )) (jsonObjectSC [(k1, jsonObjectSC [(k2, jsonNumberSC 42)])])
 
 prop_comma_duplicates f j      = let res = run (compile f) j in
                                    isRight res ==>
@@ -117,3 +127,11 @@ prop_comma_duplicates f j      = let res = run (compile f) j in
 prop_comma_carries_error f g j = isLeft (run (compile f) j) ==>
                                  isLeft (run (compile $ filterCommaSC f g) j)
 prop_comma_identity j          = run (compile $ filterCommaSC filterIdentitySC filterIdentitySC) j == Right [j, j]
+prop_comma_index_error_l k     = isLeft $ run (compile $ filterCommaSC (filterStringIndexingSC k) (filterIdentitySC)) (jsonNumberSC 42)
+prop_comma_index_error_r k     = isLeft $ run (compile $ filterCommaSC (filterIdentitySC) (filterStringIndexingSC k)) (jsonNumberSC 42)
+prop_comma_index k1 k2 v1 v2   = k1 /= k2  ==>
+                               run (compile $  filterCommaSC (filterStringIndexingSC k1) (filterStringIndexingSC k2)) (jsonObjectSC [(k1, v1), (k2, v2)])
+                               == Right [v1, v2]
+prop_comma_pipe k1 k2 k3 v1 v2 = k1 /= k2 && k1 /= k3 && k2 /= k3 ==>
+                               run (compile $ filterPipeSC (filterCommaSC (filterStringIndexingSC k1) (filterStringIndexingSC k2)) (filterStringIndexingSC k3)) (jsonObjectSC [(k1, jsonObjectSC [(k3, v1)]), (k2, jsonObjectSC [(k3, v2)])])
+                               == Right [v1, v2]

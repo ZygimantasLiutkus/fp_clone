@@ -16,7 +16,7 @@ parseTo :: String -> JSON -> Assertion
 parseTo s j = case parse parseJSON s of
     [(v, "")] -> assertEqual ("Expected:\n" ++ show j ++ "\ngot:\n" ++ show v) j v
     [(v, s)] -> assertFailure $ "Parsed:\n" ++ show v ++ "\nwith remainder:\n" ++ show s
-    _ -> assertFailure "Parsing failed"
+    x -> assertFailure $ "Parsing failed: " ++ show x
 
 fail :: String -> Assertion
 fail s = case parse parseJSON s of
