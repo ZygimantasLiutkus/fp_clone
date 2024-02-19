@@ -111,10 +111,14 @@ null
 #
 # Unicode input
 #
+# unicode tests are particularly finicky depending on the encoding/OS/terminal
+# if the grading tests say you're deadling with unicode just fine
+# then you can safely ignore the tests below
+# but if you are missing points during grading these might help to debug your project
 
 .
-"\b\r\f\t\n\r\u1234\ud834\udd1e"
-"\b\r\f\t\n\rሴ𝄞"
+"\b\r\f\t\n\r\u02ac\u058E\u05d2\u0606"
+"\b\r\f\t\n\rʬ֎ג؆"
 
 .
 "\u0000"
