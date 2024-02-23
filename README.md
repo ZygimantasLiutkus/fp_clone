@@ -43,4 +43,4 @@ or
 
 ## Docs
 
-[stedolan.github.io/jq/manual](https://stedolan.github.io/jq/manual)
+[jqlang.github.io/jq/manual](https://jqlang.github.io/jq/manual/)
