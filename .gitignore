@@ -95,6 +95,6 @@ cscope.files
 cscope.out
 cscope.in.out
 cscope.po.out
-
+.idea
 
 # End of https://www.toptal.com/developers/gitignore/api/tags,emacs,haskell
