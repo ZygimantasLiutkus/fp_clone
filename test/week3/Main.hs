@@ -120,17 +120,18 @@ prop_show_string             = forAll genSafeString $ \s -> show (jsonStringSC s
 -- you might want to comment out these tests if they get in the way due to issues with
 -- how you represent/print strings, encodings, etc.
 -- in the end the only tests that matter are the grading ones
-prop_show_string_not_print   = show (jsonStringSC "\0019") == '\"' : "\\u0013" ++ "\""
-prop_show_string_unicode     = show (jsonStringSC "\1234") == '\"' : "\1234" ++ "\""
+prop_show_string_not_print   = show (jsonStringSC "\0019") === '\"' : "\\u0013" ++ "\""
+prop_show_string_unicode     = show (jsonStringSC "\1234") === '\"' : "\1234" ++ "\""
+
 
 prop_show_bool_true          = show (jsonBoolSC True) == "true"
 prop_show_bool_false         = show (jsonBoolSC False) == "false"
-prop_show_empty_array        = show (jsonArraySC []) == "[]"
-prop_show_array_one_element  = show (jsonArraySC [jsonNullSC]) == "[\n  null\n]"
-prop_show_array_two_elements = show (jsonArraySC [jsonNullSC, jsonNUllSC]) == "[\n  null,\n  null\n]"
-prop_show_nested_array       = show (jsonArraySC [jsonArraySC [jsonNullSC, jsonNullSC], jsonNullSC]) == "[\n  [\n    null,\n    null\n  ],\n  null\n]"
-prop_show_empty_object       = show (jsonObjectSC []) == "{}"
-prop_show_object_one_element = show (jsonObjectSC [("key", jsonNullSC)]) == "{\n  \"key\": null\n}"
+prop_show_empty_array        = show (jsonArraySC []) === "[]"
+prop_show_array_one_element  = show (jsonArraySC [jsonNullSC]) === "[\n  null\n]"
+prop_show_array_two_elements = show (jsonArraySC [jsonNullSC, jsonNullSC]) === "[\n  null,\n  null\n]"
+prop_show_nested_array       = show (jsonArraySC [jsonArraySC [jsonNullSC, jsonNullSC], jsonNullSC]) === "[\n  [\n    null,\n    null\n  ],\n  null\n]"
+prop_show_empty_object       = show (jsonObjectSC []) === "{}"
+prop_show_object_one_element = show (jsonObjectSC [("key", jsonNullSC)]) === "{\n  \"key\": null\n}"
 prop_show_nested_objects = show (jsonObjectSC [("key1", jsonNullSC), ("key2", jsonObjectSC [("key3", jsonNullSC), ("key4", jsonNullSC)])]) == "{\n  \"key1\": null,\n  \"key2\": {\n    \"key3\": null,\n    \"key4\": null\n  }\n}"
 
 tests = testGroup "Week 3 tests" [

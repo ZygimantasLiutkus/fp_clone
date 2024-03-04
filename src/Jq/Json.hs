@@ -1,14 +1,42 @@
 module Jq.Json where
 
 data JSON =
-    JNull
+    JString String | JNumber Int | JBool Bool
+                | JNull | JObject [(String, JSON)] | JArray [JSON]
 
 instance Show JSON where
-  show (JNull) = "null"
+    show json = prettyPrint json 0
+        where
+            prettyPrint (JNull) _ = "null"
+            prettyPrint (JString s) _ = "\"" ++ escapeString s ++ "\""
+            prettyPrint (JNumber n) _ = show n
+            prettyPrint (JBool True) _ = "true"
+            prettyPrint (JBool False) _ = "false"
+            prettyPrint (JObject o) indent = "{" ++ showJSONObject o ++ "}"
+                where
+                    showJSONObject [] = ""
+                    showJSONObject ((k, v):[]) = "\n" ++ replicate (indent + 2) ' ' ++ show k ++ ": " ++ prettyPrint v (indent + 2) ++ "\n" ++ replicate indent ' '
+                    showJSONObject ((k, v):t) = "\n" ++ replicate (indent + 2) ' ' ++ show k ++ ": " ++ prettyPrint v (indent + 2) ++ "," ++ showJSONObject t
+            prettyPrint (JArray xs) indent = "[" ++ showJSONArray xs ++ "]"
+                where
+                    showJSONArray [] = ""
+                    showJSONArray (h:[]) = "\n" ++ replicate (indent + 2) ' ' ++ prettyPrint h (indent + 2) ++ "\n" ++ replicate indent ' '
+                    showJSONArray (h:t) = "\n" ++ replicate (indent + 2) ' ' ++ prettyPrint h (indent + 2) ++ "," ++ showJSONArray t
+            escapeString :: String -> String
+            escapeString [] = []
+            escapeString (c:cs) = c:(escapeString cs)
+
 
 instance Eq JSON where
   JNull == JNull = True
-  _ == _ = undefined
+  JString s1 == JString s2 = s1 == s2
+  JNumber n1 == JNumber n2 = n1 == n2
+  JBool b1 == JBool b2 = b1 == b2
+  JObject [] == JObject [] = True
+  JObject ((s1, v1):t1) == JObject ((s2, v2):t2) = s1 == s2 && v1 == v2 && JObject t1 == JObject t2
+  JArray [] == JArray [] = True
+  JArray (h1:t1) == JArray (h2:t2) = h1 == h2 && JArray t1 == JArray t2
+  _ == _ = False
 
 -- Smart constructors
 -- These are included for test purposes and
@@ -20,16 +48,16 @@ jsonNullSC :: JSON
 jsonNullSC = JNull
 
 jsonNumberSC :: Int -> JSON
-jsonNumberSC = undefined
+jsonNumberSC x = JNumber x
 
 jsonStringSC :: String -> JSON
-jsonStringSC = undefined
+jsonStringSC s = JString s
 
 jsonBoolSC :: Bool -> JSON
-jsonBoolSC = undefined
+jsonBoolSC b = JBool b
 
 jsonArraySC :: [JSON] -> JSON
-jsonArraySC = undefined
+jsonArraySC xs = JArray xs
 
 jsonObjectSC :: [(String, JSON)] -> JSON
-jsonObjectSC = undefined
+jsonObjectSC o = JObject o
