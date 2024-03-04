@@ -30,11 +30,11 @@ license:             BSD3
 license-file:        LICENSE
 
 -- The package author(s).
-author:              Your Name
+author:              Zygimantas Liutkus
 
 -- An email address to which users can send suggestions, bug reports, and
 -- patches.
-maintainer:          youremail@tudelft.nl
+maintainer:          Liutkus@tudelft.nl
 
 -- A copyright notice.
 -- copyright:
