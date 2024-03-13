@@ -95,6 +95,8 @@ cscope.files
 cscope.out
 cscope.in.out
 cscope.po.out
-.idea
 
+# Ignore stack and idea files
+.idea
+stack.yaml.lock
 # End of https://www.toptal.com/developers/gitignore/api/tags,emacs,haskell
