@@ -121,7 +121,7 @@ prop_show_string             = forAll genSafeString $ \s -> show (jsonStringSC s
 -- how you represent/print strings, encodings, etc.
 -- in the end the only tests that matter are the grading ones
 prop_show_string_not_print   = show (jsonStringSC "\0019") === '\"' : "\\u0013" ++ "\""
-prop_show_string_unicode     = show (jsonStringSC "\1234") === '\"' : "\1234" ++ "\""
+prop_show_string_unicode     = show (jsonStringSC "\1234") === '\"' : "\\u04d2" ++ "\"" -- 1234 in hex (unicode of Ӓ)
 
 
 prop_show_bool_true          = show (jsonBoolSC True) == "true"

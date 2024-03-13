@@ -1,5 +1,8 @@
 module Jq.Json where
 
+import Data.Char (ord)
+import Numeric (showHex)
+
 data JSON =
     JString String | JNumber Int | JBool Bool
                 | JNull | JObject [(String, JSON)] | JArray [JSON]
@@ -24,8 +27,17 @@ instance Show JSON where
                     showJSONArray (h:t) = "\n" ++ replicate (indent + 2) ' ' ++ prettyPrint h (indent + 2) ++ "," ++ showJSONArray t
             escapeString :: String -> String
             escapeString [] = []
-            escapeString (c:cs) = c:(escapeString cs)
-
+            escapeString (c:cs) = case lookup c simpleEscapes of
+                Just r -> r ++ escapeString cs
+                Nothing
+                  | c < ' ' || c == '\x7f' || c > '\xff' -> hexEscape c ++ escapeString cs
+                  | otherwise -> c : escapeString cs
+            simpleEscapes :: [(Char, String)]
+            simpleEscapes = zipWith (\a b -> (a, ['\\', b])) "\b\n\f\r\t\\\"/" "bnfrt\\\"/"
+            hexEscape :: Char -> String
+            hexEscape c = "\\u" ++ replicate (4 - length h) '0' ++ h
+                where
+                    h = showHex (ord c) ""
 
 instance Eq JSON where
   JNull == JNull = True
