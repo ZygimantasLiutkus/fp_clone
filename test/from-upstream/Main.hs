@@ -68,7 +68,7 @@ testfile = do
 
 toparse :: IO String
 toparse = do
-  file <- getDataFileName "jq.test"
+  file <- getDataFileName "jq.test"  -- change back to jq.test to run all tests or change to my.test to run only my tests
   r <- readFile file
   return r
 
@@ -109,12 +109,12 @@ prettifyJSON :: String -> IO String
 prettifyJSON s = do
   let jqconfig = setStdin (byteStringInput (fromString s))
                $ setStdout byteStringOutput
-               $ (shell "jq --sort-keys -M \".\"")
+               $ (shell "jq -M \".\"") -- removed option --sort-keys cuz it's dumbb
   bv <- withProcessWait_ jqconfig (\ p -> atomically (getStdout p))
-  return $ toString bv
+--  return $ toString bv
 -- if you're on Windows and see problems with \r character consider
--- swapping the line above for
--- return . filter (/= '\r') . toString $ bv
+-- swapping the line above for (note: now swapped)
+  return . filter (/= '\r') . toString $ bv
 
 createTestInstance :: Program -> JTestInstance -> TestTree
 createTestInstance program t = localOption (mkTimeout 10000000) $ testCase name res
