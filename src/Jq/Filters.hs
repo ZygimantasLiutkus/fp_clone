@@ -1,7 +1,12 @@
 module Jq.Filters where
 
+import Jq.Json
+
 data Filter = Identity | Parenthesis Filter | ObjIndex String | OptObjIndex String |
-              ArrIndex Int | Slice Int Int | Iterator | OptIterator | Comma Filter Filter | Pipe Filter Filter
+              ArrIndex Int | Slice Int Int | Iterator | OptIterator | Comma Filter Filter |
+              Pipe Filter Filter | Value JSON | Array Filter | Object [(Filter, Filter)] |
+              ObjectKey String | DoNothing
+
 
 instance Show Filter where
   show (Identity) = "."

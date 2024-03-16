@@ -58,6 +58,20 @@ compile (Pipe f1 f2) inp = do
   r1 <- compile f1 inp
   r2 <- mapM (compile f2) r1
   return $ concat r2
+compile (Value v) _ = return [v]
+compile (Array f) inp = do
+  r <- compile f inp
+  return [JArray r]
+compile (Object fs) inp = do
+  r <- mapM (\(k, v) ->
+    case (compile k inp, compile v inp) of
+      (Right [s], Right [val]) -> case s of
+        JString key -> return (key, val)
+        _ -> Left "Value construction: key is not a string"
+      _ -> Left "Value construction: bad object") fs
+  return [JObject r]
+compile (ObjectKey s) inp = return [JString s]
+compile (DoNothing) _ = return []
 
 run :: JProgram [JSON] -> JSON -> Either String [JSON]
 run p j = p j
