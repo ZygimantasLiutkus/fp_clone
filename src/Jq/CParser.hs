@@ -18,8 +18,8 @@ parseParenthesis = do
 
 parseObjIndex :: Parser Filter
 parseObjIndex = do
-  p <- parseOptObjId <|> parseOptObjIdentId <|> parseObjId <|> parseObjIdentId
-  ps <- many (parseOptObjId <|> parseOptObjIdentId <|> parseObjId <|> parseObjIdentId)
+  p <- parseObjId <|> parseObjIdentId
+  ps <- many (parseObjId <|> parseObjIdentId)
   return (makePipe (p : ps))
 
 parseObjId :: Parser Filter
@@ -27,7 +27,10 @@ parseObjIdentId :: Parser Filter
 parseObjIdentId = do
   _ <- token . char $ '.'
   s <- parseKeyQuotes <|> parseKeyNoQuotes
-  return (ObjIndex s)
+  isOpt <- token (char '?') <|> return ' '
+  if isOpt == '?'
+    then return (Optional (ObjIndex s))
+    else return (ObjIndex s)
 parseObjId = do
   _ <- token . char $ '.'
   _ <- token . char $ '['
@@ -35,27 +38,10 @@ parseObjId = do
   s <- some (sat (/= '"'))
   _ <- token . char $ '"'
   _ <- token . char $ ']'
-  return (ObjIndex s)
-
---parseOptObjIndex :: Parser Filter
---parseOptObjIndex = parseOptObjId <|> parseOptObjIdentId
-
-parseOptObjId :: Parser Filter
-parseOptObjIdentId :: Parser Filter
-parseOptObjIdentId = do
-  _ <- token . char $ '.'
-  s <- parseKeyQuotes <|> parseKeyNoQuotes
-  _ <- token . char $ '?'
-  return (OptObjIndex s)
-parseOptObjId = do
-  _ <- token . char $ '.'
-  _ <- token . char $ '['
-  _ <- token . char $ '"'
-  s <- some (sat (/= '"'))
-  _ <- token . char $ '"'
-  _ <- token . char $ ']'
-  _ <- token . char $ '?'
-  return (OptObjIndex s)
+  isOpt <- token (char '?') <|> return ' '
+  if isOpt == '?'
+    then return (Optional (ObjIndex s))
+    else return (ObjIndex s)
 
 parseArrIndex :: Parser Filter
 parseArrIndex = do
@@ -82,14 +68,6 @@ parseIterator = do
   _ <- token . char $ ']'
   return Iterator
 
-parseOptIterator :: Parser Filter
-parseOptIterator = do
-  _ <- token . char $ '.'
-  _ <- token . char $ '['
-  _ <- token . char $ ']'
-  _ <- token . char $ '?'
-  return OptIterator
-
 parseComma :: Parser Filter
 parseComma = do
   f <- parsePipe
@@ -115,9 +93,15 @@ makePipe [f] = f
 makePipe (f : fs) = Pipe f (makePipe fs)
 
 parseFilter :: Parser Filter
-parseFilter =  parseParenthesis <|> parseObjIndex <|> parseArrIndex <|>
-               parseSlice <|> parseOptIterator <|> parseIterator <|>
-               parseIdentity
+parseFilter =  do
+  f <- parseParenthesis <|> parseObjIndex <|> parseArrIndex <|>
+       parseSlice <|> parseIterator <|> parseIdentity
+  isOpt <- token (char '?') <|> return ' '
+  if isOpt == '?'
+    then do
+      _ <- many (token (char '?'))
+      return (Optional f)
+    else return f
 
 parseFNull :: Parser Filter
 parseFNull = do
@@ -171,7 +155,7 @@ parseFObject = do
 parseShort :: Parser (Filter, Filter)
 parseShort = do
   s <- parseKeyQuotes <|> parseKeyNoQuotes
-  return (ObjectKey s, OptObjIndex s)
+  return (ObjectKey s, Optional (ObjIndex s))
 
 parseKV :: Parser (Filter, Filter)
 parseKV = do
@@ -198,9 +182,16 @@ parseKeyNoQuotes = do
   ss <- many (alphanum <|> char '_')
   return (s:ss)
 
+parseValue :: Parser Filter
+parseValue = do
+  v <- parseFNull <|> parseFBool <|> parseFString <|> parseFNumber <|> parseFArray <|> parseFObject
+  isOpt <- token (char '?') <|> return ' '
+  if isOpt == '?'
+    then return (Optional v)
+    else return v
+
 parseConstructor :: Parser Filter
-parseConstructor = parseFNull <|> parseFBool <|> parseFString
-                   <|> parseFNumber <|> parseFArray <|> parseFObject <|> parseComma
+parseConstructor = parseValue <|> parseComma
 
 parseConfig :: [String] -> Either String Config
 parseConfig s = case s of
