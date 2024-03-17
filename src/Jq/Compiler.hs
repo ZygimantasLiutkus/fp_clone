@@ -43,8 +43,7 @@ compile (Slice from to) inp = case inp of
                                  in (f', t')
 compile (Iterator arr) inp = case inp of
   JArray a -> if null arr then return a else return $ map (a !!) arr
-  JObject o -> let r = map snd o
-               in if null arr then return r else return $ map (r !!) arr
+  JObject o -> if null arr then return $ map snd o else Left "Can't iterate over object with numbers"
   _ -> Left "Iterator not applicable"
 compile (Optional f) inp = case compile f inp of
   Right x -> return x

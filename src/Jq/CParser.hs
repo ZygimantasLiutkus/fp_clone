@@ -82,9 +82,9 @@ parseDescent = do
 
 parseComma :: Parser Filter
 parseComma = do
-  f <- parsePipe
+  f <- parseFilter
   fs <- many (do _ <- token (char ',')
-                 parsePipe)
+                 parseFilter)
   return $ makeComma (f : fs)
 
 makeComma :: [Filter] -> Filter
@@ -94,9 +94,9 @@ makeComma (f : fs) = Comma f (makeComma fs)
 
 parsePipe :: Parser Filter
 parsePipe = do
-  f <- parseFilter
+  f <- parseComma
   fs <- many (do _ <- token (char '|')
-                 parseFilter)
+                 parseComma)
   return $ makePipe (f : fs)
 
 makePipe :: [Filter] -> Filter
@@ -203,7 +203,7 @@ parseValue = do
     else return v
 
 parseConstructor :: Parser Filter
-parseConstructor = parseValue <|> parseComma
+parseConstructor = parseValue <|> parsePipe
 
 parseConfig :: [String] -> Either String Config
 parseConfig s = case s of
