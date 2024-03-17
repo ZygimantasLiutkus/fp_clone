@@ -4,8 +4,8 @@ import Data.Char (ord)
 import Numeric (showHex)
 
 data JSON =
-    JString String | JNumber Int | JBool Bool
-                | JNull | JObject [(String, JSON)] | JArray [JSON]
+    JString String | JNumber Int | JFloat Float |
+    JBool Bool | JNull | JObject [(String, JSON)] | JArray [JSON]
 
 instance Show JSON where
     show json = prettyPrint json 0
@@ -13,6 +13,7 @@ instance Show JSON where
             prettyPrint (JNull) _ = "null"
             prettyPrint (JString s) _ = "\"" ++ escapeString s ++ "\""
             prettyPrint (JNumber n) _ = show n
+            prettyPrint (JFloat f) _ = show f
             prettyPrint (JBool True) _ = "true"
             prettyPrint (JBool False) _ = "false"
             prettyPrint (JObject o) indent = "{" ++ showJSONObject o ++ "}"

@@ -51,6 +51,32 @@ parseJNumber = do
   n <- int
   return (JNumber n)
 
+parseJFloat :: Parser JSON
+parseJFloat = do
+  _ <- many (sat (== '0'))
+  dec <- char '.' <|> return ' '
+  if dec == '.'
+  then do
+    frac <- some digit <|> return "0"
+    e <- char 'e' <|> char 'E' <|> return ' '
+    if e == ' '
+    then return (JFloat (read ("0." ++ frac) :: Float))
+    else do
+      s <- char '-' <|> char '+'
+      e <- some digit
+      return (JFloat (read ("0." ++ frac ++ "e" ++ s:e) :: Float))
+  else do
+    whole <- some digit
+    _ <- char '.'
+    frac <- some digit <|> return "0"
+    e <- char 'e' <|> char 'E' <|> return ' '
+    if e == ' '
+    then return (JFloat (read (whole ++ "." ++ frac) :: Float))
+    else do
+      s <- char '-' <|> char '+'
+      e <- some digit
+      return (JFloat (read (whole ++ "." ++ frac ++ "e" ++ s:e) :: Float))
+
 parseJBool :: Parser JSON
 parseJBool = do
   b <- string "true" <|> string "false"
@@ -93,5 +119,6 @@ parseJObject = do
           return (k, v)
 
 parseJSON :: Parser JSON
-parseJSON = parseJNull <|> parseJString <|> parseJNumber
-            <|> parseJBool <|> parseJArray <|> parseJObject
+parseJSON = parseJNull <|> parseJString <|> parseJFloat <|>
+            parseJNumber <|> parseJBool <|> parseJArray <|>
+            parseJObject
