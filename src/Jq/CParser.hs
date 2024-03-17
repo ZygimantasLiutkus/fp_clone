@@ -3,6 +3,7 @@ module Jq.CParser where
 import Parsing.Parsing
 import Jq.Filters
 import Jq.JParser
+import Jq.Json
 
 parseIdentity :: Parser Filter
 parseIdentity = do
@@ -58,17 +59,17 @@ parseSlice = do
   noFrom <- token (char ':') <|> return ' '
   if noFrom == ':'
   then do
-    to <- integer
+    to <- parseConstructor
     _ <- token . char $ ']'
-    return (Slice (minBound :: Int) to)
+    return (Slice (Value JNull) to)
   else do
-    from <- integer
+    from <- parseConstructor
     _ <- token . char $ ':'
     noTo <- token (char ']') <|> return ' '
     if noTo == ']'
-    then return (Slice from (maxBound :: Int))
+    then return (Slice from (Value JNull))
     else do
-      to <- integer
+      to <- parseConstructor
       _ <- token . char $ ']'
       return (Slice from to)
 
@@ -90,14 +91,14 @@ parseFirstIterator = do
         then return (Optional (Iterator []))
         else return (Iterator [])
     else do
-      f <- int
+      f <- parseConstructor
       fs <- many (do _ <- token (char ',')
-                     int)
+                     parseConstructor)
       _ <- token . char $ ']'
       isOpt <- token (char '?') <|> return ' '
       if isOpt == '?'
-      then return (Optional (Iterator (f : fs)))
-      else return (Iterator (f : fs))
+        then return (Optional (Iterator (f : fs)))
+        else return (Iterator (f : fs))
 
 parseNextIterator :: Parser Filter
 parseNextIterator = do
@@ -110,61 +111,15 @@ parseNextIterator = do
         then return (Optional (Iterator []))
         else return (Iterator [])
     else do
-      f <- int
+      f <- parseConstructor
       fs <- many (do _ <- token (char ',')
-                     int)
+                     parseConstructor)
       _ <- token . char $ ']'
       isOpt <- token (char '?') <|> return ' '
       if isOpt == '?'
         then return (Optional (Iterator (f : fs)))
         else return (Iterator (f : fs))
 
---parseIterator :: Parser Filter
---parseIterator = do
---  i <- parseFirstIterator
---  is <- many parseNextIterator
---  return (makePipe (i : is))
---
---parseFirstIterator :: Parser Filter
---parseFirstIterator = do
---  _ <- token . char $ '.'
---  _ <- token . char $ '['
---  isEmpty <- token (char ']') <|> return ' '
---  if isEmpty == ']'
---    then do
---      isOpt <- token (char '?') <|> return ' '
---      if isOpt == '?'
---        then return (Optional (Iterator []))
---        else return (Iterator [])
---    else do
---      f <- parseConstructor
---      fs <- many (do _ <- token (char ',')
---                     parseConstructor)
---      _ <- token . char $ ']'
---      isOpt <- token (char '?') <|> return ' '
---      if isOpt == '?'
---      then return (Optional (Iterator (f : fs)))
---      else return (Iterator (f : fs))
---
---parseNextIterator :: Parser Filter
---parseNextIterator = do
---  _ <- token . char $ '['
---  isEmpty <- token (char ']') <|> return ' '
---  if isEmpty == ']'
---    then do
---      isOpt <- token (char '?') <|> return ' '
---      if isOpt == '?'
---        then return (Optional (Iterator []))
---        else return (Iterator [])
---    else do
---      f <- parseConstructor
---      fs <- many (do _ <- token (char ',')
---                     parseConstructor)
---      _ <- token . char $ ']'
---      isOpt <- token (char '?') <|> return ' '
---      if isOpt == '?'
---        then return (Optional (Iterator (f : fs)))
---        else return (Iterator (f : fs))
 
 parseDescent :: Parser Filter
 parseDescent = do

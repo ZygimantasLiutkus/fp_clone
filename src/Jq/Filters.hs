@@ -3,7 +3,7 @@ module Jq.Filters where
 import Jq.Json
 
 data Filter = Identity | Parenthesis Filter | ObjIndex String | ArrIndex Int |
-              Slice Int Int | Iterator [Int] | Optional Filter | Comma Filter Filter |
+              Slice Filter Filter | Iterator [Filter] | Optional Filter | Comma Filter Filter |
               Pipe Filter Filter | Value JSON | Array Filter |
               Object [(Filter, Filter)] | ObjectKey String | DoNothing |
               Descent

@@ -23,27 +23,42 @@ compile (ArrIndex i) inp = case inp of
                   else return [JNull]
   JNull -> return [JNull]
   _ -> Left "Array index not applicable"
-compile (Slice from to) inp = case inp of
-  JArray a -> let (f, t) = getSlice (length a) (from, to)
-              in return [JArray $ take (t - f) $ drop f a]
-  JString s -> let (f, t) = getSlice (length s) (from, to)
-               in return [JString $ take (t - f) $ drop f s]
-  JNull -> return [JNull]
-  _ -> Left "Slice not applicable"
-  where
-    getSlice :: Int -> (Int, Int) -> (Int, Int)
-    getSlice l p = case p of
-      (f, t) | f > 0 && t > 0 -> (f, t)
-      (f, t) | f < 0 && t > 0 -> let f' = if abs f > l then 0 else l + f
-                                 in (f', t)
-      (f, t) | f > 0 && t < 0 -> let t' = if abs t > l then 0 else l + t
-                                 in (f, t')
-      (f, t) | f < 0 && t < 0 -> let f' = if abs f > l then 0 else l + f
-                                     t' = if abs t > l then 0 else l + t
-                                 in (f', t')
+compile (Slice from to) inp = do
+  from' <- compile from inp
+  to' <- compile to inp
+  (fs, ts) <- mapJSONSlice (from', to')
+  case inp of
+    JArray a -> let ps = map (getSlice (length a)) [(x, y) | x <- fs, y <- ts]
+                in return $ map (\(f, t) -> JArray $ take (t - f) $ drop f a) ps
+    JString s -> let ps = map (getSlice (length s)) [(x, y) | x <- fs, y <- ts]
+                 in case ps of
+                   [(f, t)] -> return [JString $ take (t - f) $ drop f s]
+                   _ -> Left "Cannot iterate over string"
+    JNull -> return [JNull]
+    _ -> Left "Slice not applicable"
+    where
+      getSlice :: Int -> (Int, Int) -> (Int, Int)
+      getSlice l p = case p of
+        (f, t) | f > 0 && t > 0 -> (f, t)
+        (f, t) | f < 0 && t > 0 -> let f' = if abs f > l then 0 else l + f
+                                   in (f', t)
+        (f, t) | f > 0 && t < 0 -> let t' = if abs t > l then 0 else l + t
+                                   in (f, t')
+        (f, t) | f < 0 && t < 0 -> let f' = if abs f > l then 0 else l + f
+                                       t' = if abs t > l then 0 else l + t
+                                   in (f', t')
+
 compile (Iterator arr) inp = case inp of
-  JArray a -> if null arr then return a else return $ map (a !!) arr
-  JObject o -> if null arr then return $ map snd o else Left "Can't iterate over object with numbers"
+  JArray a -> if null arr then return a else do
+    ids <- mapM (\x -> compile x inp) arr
+    r <- mapJSONInts (concat ids)
+    res <- mapM (\x -> compile x inp) r
+    return $ concat res
+  JObject o -> if null arr then return $ map snd o else do
+    ids <- mapM (\x -> compile x inp) arr
+    r <- mapJSONStrings (concat ids)
+    res <- mapM (\x -> compile x inp) r
+    return $ concat res
   _ -> Left "Iterator not applicable"
 compile (Optional f) inp = case compile f inp of
   Right x -> return x
@@ -85,3 +100,35 @@ remainDescent inp = do
 
 run :: JProgram [JSON] -> JSON -> Either String [JSON]
 run p j = p j
+
+
+mapJSONInts :: [JSON] -> Either String [Filter]
+mapJSONInts [] = return []
+mapJSONInts ((JNumber n):xs) = do
+  ns <- mapJSONInts xs
+  return ((ArrIndex n):ns)
+mapJSONInts _ = Left "Cannot index array with non-integer"
+
+mapJSONStrings :: [JSON] -> Either String [Filter]
+mapJSONStrings [] = return []
+mapJSONStrings ((JString s):xs) = do
+  ss <- mapJSONStrings xs
+  return ((ObjIndex s):ss)
+mapJSONStrings _ = Left "Cannot index object with non-string"
+
+mapJSONSlice :: ([JSON], [JSON]) -> Either String ([Int], [Int])
+mapJSONSlice (from, to) = do
+  fs <- mapInts False from
+  ts <- mapInts True to
+  return (fs, ts)
+
+mapInts :: Bool -> [JSON] -> Either String [Int]
+mapInts _ [] = return []
+mapInts b ((JNumber n):xs) = do
+  ns <- mapInts b xs
+  return (n:ns)
+mapInts b (JNull:xs) = do
+  n <- if b then return (maxBound :: Int) else return (minBound :: Int)
+  ns <- mapInts b xs
+  return (n:ns)
+mapInts _ _ = Left "Cannot slice with non-integer"
