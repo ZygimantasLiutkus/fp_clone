@@ -19,7 +19,7 @@ parseParenthesis = do
 parseObjIndex :: Parser Filter
 parseObjIndex = do
   p <- parseObjId <|> parseObjIdentId
-  ps <- many (parseObjId <|> parseObjIdentId)
+  ps <- many (parseObjId <|> parseObjIdentId <|> parseNextIterator)
   return (makePipe (p : ps))
 
 parseObjId :: Parser Filter
@@ -74,17 +74,97 @@ parseSlice = do
 
 parseIterator :: Parser Filter
 parseIterator = do
+  i <- parseFirstIterator
+  is <- many (parseNextIterator <|> parseObjIndex)
+  return (makePipe (i : is))
+
+parseFirstIterator :: Parser Filter
+parseFirstIterator = do
   _ <- token . char $ '.'
   _ <- token . char $ '['
   isEmpty <- token (char ']') <|> return ' '
   if isEmpty == ']'
-    then return (Iterator [])
+    then do
+      isOpt <- token (char '?') <|> return ' '
+      if isOpt == '?'
+        then return (Optional (Iterator []))
+        else return (Iterator [])
     else do
       f <- int
       fs <- many (do _ <- token (char ',')
                      int)
       _ <- token . char $ ']'
-      return (Iterator (f : fs))
+      isOpt <- token (char '?') <|> return ' '
+      if isOpt == '?'
+      then return (Optional (Iterator (f : fs)))
+      else return (Iterator (f : fs))
+
+parseNextIterator :: Parser Filter
+parseNextIterator = do
+  _ <- token . char $ '['
+  isEmpty <- token (char ']') <|> return ' '
+  if isEmpty == ']'
+    then do
+      isOpt <- token (char '?') <|> return ' '
+      if isOpt == '?'
+        then return (Optional (Iterator []))
+        else return (Iterator [])
+    else do
+      f <- int
+      fs <- many (do _ <- token (char ',')
+                     int)
+      _ <- token . char $ ']'
+      isOpt <- token (char '?') <|> return ' '
+      if isOpt == '?'
+        then return (Optional (Iterator (f : fs)))
+        else return (Iterator (f : fs))
+
+--parseIterator :: Parser Filter
+--parseIterator = do
+--  i <- parseFirstIterator
+--  is <- many parseNextIterator
+--  return (makePipe (i : is))
+--
+--parseFirstIterator :: Parser Filter
+--parseFirstIterator = do
+--  _ <- token . char $ '.'
+--  _ <- token . char $ '['
+--  isEmpty <- token (char ']') <|> return ' '
+--  if isEmpty == ']'
+--    then do
+--      isOpt <- token (char '?') <|> return ' '
+--      if isOpt == '?'
+--        then return (Optional (Iterator []))
+--        else return (Iterator [])
+--    else do
+--      f <- parseConstructor
+--      fs <- many (do _ <- token (char ',')
+--                     parseConstructor)
+--      _ <- token . char $ ']'
+--      isOpt <- token (char '?') <|> return ' '
+--      if isOpt == '?'
+--      then return (Optional (Iterator (f : fs)))
+--      else return (Iterator (f : fs))
+--
+--parseNextIterator :: Parser Filter
+--parseNextIterator = do
+--  _ <- token . char $ '['
+--  isEmpty <- token (char ']') <|> return ' '
+--  if isEmpty == ']'
+--    then do
+--      isOpt <- token (char '?') <|> return ' '
+--      if isOpt == '?'
+--        then return (Optional (Iterator []))
+--        else return (Iterator [])
+--    else do
+--      f <- parseConstructor
+--      fs <- many (do _ <- token (char ',')
+--                     parseConstructor)
+--      _ <- token . char $ ']'
+--      isOpt <- token (char '?') <|> return ' '
+--      if isOpt == '?'
+--        then return (Optional (Iterator (f : fs)))
+--        else return (Iterator (f : fs))
 
 parseDescent :: Parser Filter
 parseDescent = do
