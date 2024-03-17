@@ -53,28 +53,29 @@ parseJNumber = do
 
 parseJFloat :: Parser JSON
 parseJFloat = do
+  neg <- string "-" <|> return ""
   dec <- char '.' <|> return ' '
   if dec == '.'
   then do
     frac <- some digit
     e <- char 'e' <|> char 'E' <|> return ' '
     if e == ' '
-    then return (JFloat (read ("0." ++ frac) :: Float))
+    then return (JFloat (read (neg ++ "0." ++ frac) :: Float))
     else do
       s <- char '-' <|> char '+'
       exp <- some digit
-      return (JFloat (read ("0." ++ frac ++ "e" ++ s:exp) :: Float))
+      return (JFloat (read (neg ++ "0." ++ frac ++ "e" ++ s:exp) :: Float))
   else do
     whole <- some digit
     _ <- char '.'
     frac <- some digit <|> return "0"
     e <- char 'e' <|> char 'E' <|> return ' '
     if e == ' '
-    then return (JFloat (read (whole ++ "." ++ frac) :: Float))
+    then return (JFloat (read (neg ++ whole ++ "." ++ frac) :: Float))
     else do
       s <- char '-' <|> char '+'
       exp <- some digit
-      return (JFloat (read (whole ++ "." ++ frac ++ "e" ++ s:exp) :: Float))
+      return (JFloat (read (neg ++ whole ++ "." ++ frac ++ "e" ++ s:exp) :: Float))
 
 parseJBool :: Parser JSON
 parseJBool = do
