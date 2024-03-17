@@ -55,11 +55,22 @@ parseSlice :: Parser Filter
 parseSlice = do
   _ <- token . char $ '.'
   _ <- token . char $ '['
-  from <- int
-  _ <- token . char $ ':'
-  to <- int
-  _ <- token . char $ ']'
-  return (Slice from to)
+  noFrom <- token (char ':') <|> return ' '
+  if noFrom == ':'
+  then do
+    to <- integer
+    _ <- token . char $ ']'
+    return (Slice (minBound :: Int) to)
+  else do
+    from <- integer
+    _ <- token . char $ ':'
+    noTo <- token (char ']') <|> return ' '
+    if noTo == ']'
+    then return (Slice from (maxBound :: Int))
+    else do
+      to <- integer
+      _ <- token . char $ ']'
+      return (Slice from to)
 
 parseIterator :: Parser Filter
 parseIterator = do
