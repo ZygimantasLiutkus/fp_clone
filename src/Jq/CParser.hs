@@ -65,8 +65,15 @@ parseIterator :: Parser Filter
 parseIterator = do
   _ <- token . char $ '.'
   _ <- token . char $ '['
-  _ <- token . char $ ']'
-  return Iterator
+  isEmpty <- token (char ']') <|> return ' '
+  if isEmpty == ']'
+    then return (Iterator [])
+    else do
+      f <- int
+      fs <- many (do _ <- token (char ',')
+                     int)
+      _ <- token . char $ ']'
+      return (Iterator (f : fs))
 
 parseDescent :: Parser Filter
 parseDescent = do

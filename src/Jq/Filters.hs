@@ -3,7 +3,7 @@ module Jq.Filters where
 import Jq.Json
 
 data Filter = Identity | Parenthesis Filter | ObjIndex String | ArrIndex Int |
-              Slice Int Int | Iterator | Optional Filter | Comma Filter Filter |
+              Slice Int Int | Iterator [Int] | Optional Filter | Comma Filter Filter |
               Pipe Filter Filter | Value JSON | Array Filter |
               Object [(Filter, Filter)] | ObjectKey String | DoNothing |
               Descent
@@ -15,7 +15,7 @@ instance Show Filter where
   show (ObjIndex s) = "." ++ s
   show (ArrIndex i) = ".["++show i++"]"
   show (Slice from to) = ".["++ show from ++":"++show to++"]"
-  show (Iterator) = ".[]"
+  show (Iterator arr) = "." ++ show arr
   show (Optional f) = show f ++ "?"
   show (Comma f1 f2) = show f1 ++ " , " ++ show f2
   show (Pipe f1 f2) = show f1 ++ " | " ++ show f2
@@ -35,7 +35,7 @@ instance Eq Filter where
   ObjIndex s1 == ObjIndex s2 = s1 == s2
   ArrIndex i == ArrIndex j = i == j
   Slice i j == Slice x y = i == x && j == y
-  Iterator == Iterator = True
+  Iterator a1 == Iterator a2 = a1 == a2
   Optional f1 == Optional f2 = f1 == f2
   Comma f1 f2 == Comma f3 f4 = f1 == f3 && f2 == f4
   Pipe f1 f2 == Pipe f3 f4 = f1 == f3 && f2 == f4

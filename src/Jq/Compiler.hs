@@ -41,9 +41,10 @@ compile (Slice from to) inp = case inp of
       (f, t) | f < 0 && t < 0 -> let f' = if abs f > l then 0 else l + f
                                      t' = if abs t > l then 0 else l + t
                                  in (f', t')
-compile (Iterator) inp = case inp of
-  JArray a -> return a
-  JObject o -> return $ map snd o
+compile (Iterator arr) inp = case inp of
+  JArray a -> if null arr then return a else return $ map (a !!) arr
+  JObject o -> let r = map snd o
+               in if null arr then return r else return $ map (r !!) arr
   _ -> Left "Iterator not applicable"
 compile (Optional f) inp = case compile f inp of
   Right x -> return x
@@ -76,7 +77,7 @@ compile (Descent) inp = do
 
 remainDescent :: JProgram [JSON]
 remainDescent inp = do
-  r <- compile (Optional (Iterator)) inp
+  r <- compile (Optional (Iterator [])) inp
   if null r
     then return []
     else do
