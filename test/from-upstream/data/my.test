@@ -38,3 +38,28 @@
 "amongus"
 "ng"
 
+# JSON object tests
+
+.address.city
+{ "name": "Alice", "address": { "city": "New York", "street": "Main St" } }
+"New York"
+
+.job_title
+{ "name": "Alice", "age": 30 }
+null
+
+.name
+{}
+null
+
+.
+{ "name": "Alice", "age": 30 }
+{ "name": "Alice", "age": 30 }
+
+.address?.city
+{ "name": "Alice", "address": null }
+null
+
+.
+{"a":{"b":{"c":{"d":{"e":{"f":{}}}}}}}
+{"a":{"b":{"c":{"d":{"e":{"f":1}}}}}}
