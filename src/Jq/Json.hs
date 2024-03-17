@@ -31,7 +31,7 @@ instance Show JSON where
             escapeString (c:cs) = case lookup c simpleEscapes of
                 Just r -> r ++ escapeString cs
                 Nothing
-                  | c < ' ' || c == '\x7f' || c > '\xff' -> hexEscape c ++ escapeString cs
+                  | c < ' ' -> hexEscape c ++ escapeString cs -- || c == '\x7f' || c > '\xff'
                   | otherwise -> c : escapeString cs
             simpleEscapes :: [(Char, String)]
             simpleEscapes = zipWith (\a b -> (a, ['\\', b])) "\b\n\f\r\t\\\"/" "bnfrt\\\"/"
