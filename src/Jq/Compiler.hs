@@ -70,6 +70,18 @@ compile (Object fs) inp = do
   return [JObject r]
 compile (ObjectKey s) _ = return [JString s]
 compile (DoNothing) _ = return []
+compile (Descent) inp = do
+  r <- remainDescent inp
+  return (inp:r)
+
+remainDescent :: JProgram [JSON]
+remainDescent inp = do
+  r <- compile (Optional (Iterator)) inp
+  if null r
+    then return []
+    else do
+      rs <- mapM remainDescent r
+      return $ r ++ concat rs
 
 run :: JProgram [JSON] -> JSON -> Either String [JSON]
 run p j = p j

@@ -68,6 +68,11 @@ parseIterator = do
   _ <- token . char $ ']'
   return Iterator
 
+parseDescent :: Parser Filter
+parseDescent = do
+  _ <- token . string $ ".."
+  return Descent
+
 parseComma :: Parser Filter
 parseComma = do
   f <- parsePipe
@@ -95,7 +100,7 @@ makePipe (f : fs) = Pipe f (makePipe fs)
 parseFilter :: Parser Filter
 parseFilter =  do
   f <- parseParenthesis <|> parseObjIndex <|> parseArrIndex <|>
-       parseSlice <|> parseIterator <|> parseIdentity
+       parseSlice <|> parseIterator <|> parseDescent <|> parseIdentity
   isOpt <- token (char '?') <|> return ' '
   if isOpt == '?'
     then do

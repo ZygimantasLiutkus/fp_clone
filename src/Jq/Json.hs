@@ -44,6 +44,7 @@ instance Eq JSON where
   JNull == JNull = True
   JString s1 == JString s2 = s1 == s2
   JNumber n1 == JNumber n2 = n1 == n2
+  JFloat f1 == JFloat f2 = f1 == f2
   JBool b1 == JBool b2 = b1 == b2
   JObject [] == JObject [] = True
   JObject ((s1, v1):t1) == JObject ((s2, v2):t2) = s1 == s2 && v1 == v2 && JObject t1 == JObject t2

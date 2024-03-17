@@ -5,7 +5,8 @@ import Jq.Json
 data Filter = Identity | Parenthesis Filter | ObjIndex String | ArrIndex Int |
               Slice Int Int | Iterator | Optional Filter | Comma Filter Filter |
               Pipe Filter Filter | Value JSON | Array Filter |
-              Object [(Filter, Filter)] | ObjectKey String | DoNothing
+              Object [(Filter, Filter)] | ObjectKey String | DoNothing |
+              Descent
 
 
 instance Show Filter where
@@ -26,6 +27,7 @@ instance Show Filter where
           showFields ((k, v):xs) = show k ++ " : " ++ show v ++ ", " ++ showFields xs
   show (ObjectKey s) = s
   show (DoNothing) = ""
+  show (Descent) = ".."
 
 instance Eq Filter where
   Identity == Identity = True
@@ -42,6 +44,7 @@ instance Eq Filter where
   Object fs1 == Object fs2 = fs1 == fs2
   ObjectKey s1 == ObjectKey s2 = s1 == s2
   DoNothing == DoNothing = True
+  Descent == Descent = True
   _ == _ = False
 
 data Config = ConfigC {filters :: Filter}
