@@ -2,7 +2,6 @@ module Jq.Json where
 
 import Data.Char (ord)
 import Numeric (showHex)
-import Data.List (sortOn)
 
 data JSON =
     JString String | JNumber Int | JFloat Float |
@@ -17,7 +16,7 @@ instance Show JSON where
             prettyPrint (JFloat f) _ = show f
             prettyPrint (JBool True) _ = "true"
             prettyPrint (JBool False) _ = "false"
-            prettyPrint (JObject o) indent = "{" ++ showJSONObject (sortOn fst o) ++ "}"
+            prettyPrint (JObject o) indent = "{" ++ showJSONObject o ++ "}"
                 where
                     showJSONObject [] = ""
                     showJSONObject ((k, v):[]) = "\n" ++ replicate (indent + 2) ' ' ++ show k ++ ": " ++ prettyPrint v (indent + 2) ++ "\n" ++ replicate indent ' '
