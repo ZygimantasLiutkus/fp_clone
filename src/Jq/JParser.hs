@@ -53,18 +53,17 @@ parseJNumber = do
 
 parseJFloat :: Parser JSON
 parseJFloat = do
-  _ <- many (sat (== '0'))
   dec <- char '.' <|> return ' '
   if dec == '.'
   then do
-    frac <- some digit <|> return "0"
+    frac <- some digit
     e <- char 'e' <|> char 'E' <|> return ' '
     if e == ' '
     then return (JFloat (read ("0." ++ frac) :: Float))
     else do
       s <- char '-' <|> char '+'
-      e <- some digit
-      return (JFloat (read ("0." ++ frac ++ "e" ++ s:e) :: Float))
+      exp <- some digit
+      return (JFloat (read ("0." ++ frac ++ "e" ++ s:exp) :: Float))
   else do
     whole <- some digit
     _ <- char '.'
@@ -74,8 +73,8 @@ parseJFloat = do
     then return (JFloat (read (whole ++ "." ++ frac) :: Float))
     else do
       s <- char '-' <|> char '+'
-      e <- some digit
-      return (JFloat (read (whole ++ "." ++ frac ++ "e" ++ s:e) :: Float))
+      exp <- some digit
+      return (JFloat (read (whole ++ "." ++ frac ++ "e" ++ s:exp) :: Float))
 
 parseJBool :: Parser JSON
 parseJBool = do

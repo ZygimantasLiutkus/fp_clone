@@ -120,7 +120,7 @@ parseFString = do
 
 parseFNumber :: Parser Filter
 parseFNumber = do
-  n <- parseJNumber
+  n <- parseJFloat <|> parseJNumber
   return (Value n)
 
 parseFArray :: Parser Filter
