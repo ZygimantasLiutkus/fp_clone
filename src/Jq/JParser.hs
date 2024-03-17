@@ -98,7 +98,7 @@ parseJArray = do
     then return (JArray [])
     else do
       xs <- sepBy parseJSON (char ',')
-      _ <- char ']'
+      _ <- token . char $ ']'
       return (JArray xs)
 
 parseJObject :: Parser JSON
@@ -109,7 +109,7 @@ parseJObject = do
     then return (JObject [])
     else do
       kvs <- sepBy parseKV (char ',')
-      _ <- char '}'
+      _ <- token . char $ '}'
       return (JObject kvs)
       where
         parseKV = do

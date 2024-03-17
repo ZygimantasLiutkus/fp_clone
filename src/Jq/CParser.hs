@@ -189,7 +189,7 @@ parseKeyNoQuotes = do
 
 parseValue :: Parser Filter
 parseValue = do
-  v <- parseFNull <|> parseFBool <|> parseFString <|> parseFNumber <|> parseFArray <|> parseFObject
+  v <- parseParenthesis <|> parseFNull <|> parseFBool <|> parseFString <|> parseFNumber <|> parseFArray <|> parseFObject
   isOpt <- token (char '?') <|> return ' '
   if isOpt == '?'
     then return (Optional v)
