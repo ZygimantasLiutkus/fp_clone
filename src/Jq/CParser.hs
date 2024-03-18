@@ -134,9 +134,9 @@ makeComma (f : fs) = Comma f (makeComma fs)
 
 parsePipe :: Parser Filter
 parsePipe = do
-  f <- parseComma
+  f <- parseComma <|> parseLogical
   fs <- many (do _ <- token (char '|')
-                 parseComma)
+                 parseComma <|> parseLogical)
   return $ makePipe (f : fs)
 
 makePipe :: [Filter] -> Filter
@@ -147,7 +147,7 @@ makePipe (f : fs) = Pipe f (makePipe fs)
 parseFilter :: Parser Filter
 parseFilter =  do
   f <- parseParenthesis <|> parseValue <|> parseObjIndex <|>
-       parseSlice <|> parseIterator <|> parseDescent <|> parseIdentity
+       parseSlice <|> parseIterator <|> parseDescent <|> parseIdentity <|> parseNot
   isOpt <- token (char '?') <|> return ' '
   if isOpt == '?'
     then do
@@ -242,6 +242,38 @@ parseValue = do
 
 parseConstructor :: Parser Filter
 parseConstructor = parsePipe
+
+parseLogical :: Parser Filter
+parseLogical = parseAnd <|> parseOr
+
+parseAnd :: Parser Filter
+parseAnd = do
+  f <- parseFilter
+  fs <- many (do _ <- token . string $ "and"
+                 parseFilter)
+  return $ makeAnd (f : fs)
+
+makeAnd :: [Filter] -> Filter
+makeAnd [] = Identity
+makeAnd [f] = f
+makeAnd (f : fs) = And f (makeAnd fs)
+
+parseOr :: Parser Filter
+parseOr = do
+  f <- parseFilter
+  fs <- many (do _ <- token . string $ "or"
+                 parseFilter)
+  return $ makeOr (f : fs)
+
+makeOr :: [Filter] -> Filter
+makeOr [] = Identity
+makeOr [f] = f
+makeOr (f : fs) = Or f (makeOr fs)
+
+parseNot :: Parser Filter
+parseNot = do
+  _ <- token . string $ "not"
+  return (Not)
 
 parseConfig :: [String] -> Either String Config
 parseConfig s = case s of

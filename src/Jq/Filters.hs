@@ -6,7 +6,8 @@ data Filter = Identity | Parenthesis Filter | ObjIndex String | ArrIndex Int |
               Slice Filter Filter | Iterator [Filter] | Optional Filter | Comma Filter Filter |
               Pipe Filter Filter | Value JSON | Array Filter |
               Object [(Filter, Filter)] | ObjectKey String | DoNothing |
-              Descent
+              Descent | And Filter Filter | Or Filter Filter | Not
+
 
 
 instance Show Filter where
@@ -28,6 +29,9 @@ instance Show Filter where
   show (ObjectKey s) = s
   show (DoNothing) = ""
   show (Descent) = ".."
+  show (And f1 f2) = show f1 ++ " and " ++ show f2
+  show (Or f1 f2) = show f1 ++ " or " ++ show f2
+  show (Not) = "not"
 
 instance Eq Filter where
   Identity == Identity = True
@@ -45,6 +49,9 @@ instance Eq Filter where
   ObjectKey s1 == ObjectKey s2 = s1 == s2
   DoNothing == DoNothing = True
   Descent == Descent = True
+  And f1 f2 == And f3 f4 = f1 == f3 && f2 == f4
+  Or f1 f2 == Or f3 f4 = f1 == f3 && f2 == f4
+  Not == Not = True
   _ == _ = False
 
 data Config = ConfigC {filters :: Filter}

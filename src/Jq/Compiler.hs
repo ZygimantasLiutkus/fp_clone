@@ -93,6 +93,15 @@ compile (DoNothing) _ = return []
 compile (Descent) inp = do
   r <- remainDescent inp
   return (inp:r)
+compile (And f1 f2) inp = do
+  r1 <- compile f1 inp
+  r2 <- compile f2 inp
+  return [JBool x | a <- r1, b <- r2, let x = (mapBool a) && (mapBool b)]
+compile (Or f1 f2) inp = do
+  r1 <- compile f1 inp
+  r2 <- compile f2 inp
+  return [JBool x | a <- r1, b <- r2, let x = (mapBool a) || (mapBool b)]
+compile (Not) inp = return [JBool (not (mapBool inp))]
 
 remainDescent :: JProgram [JSON]
 remainDescent inp = do
@@ -102,6 +111,11 @@ remainDescent inp = do
     else do
       rs <- mapM remainDescent r
       return $ r ++ concat rs
+
+mapBool :: JSON -> Bool
+mapBool (JBool b) = b
+mapBool (JNull) = False
+mapBool _ = True
 
 run :: JProgram [JSON] -> JSON -> Either String [JSON]
 run p j = p j
