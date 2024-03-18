@@ -35,9 +35,7 @@ parseObjIdentId = do
 parseObjId = do
   _ <- token . char $ '.'
   _ <- token . char $ '['
-  _ <- token . char $ '"'
-  s <- some (sat (/= '"'))
-  _ <- token . char $ '"'
+  s <- parseString
   _ <- token . char $ ']'
   isOpt <- token (char '?') <|> return ' '
   if isOpt == '?'
