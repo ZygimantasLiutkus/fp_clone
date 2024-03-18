@@ -11,7 +11,7 @@ instance Show JSON where
     show json = prettyPrint json 0
         where
             prettyPrint (JNull) _ = "null"
-            prettyPrint (JString s) _ = show s
+            prettyPrint (JString s) _ = "\"" ++ escapeString s ++ "\""
             prettyPrint (JNumber n) _ = show n
             prettyPrint (JFloat f) _ = show f
             prettyPrint (JBool True) _ = "true"
@@ -19,8 +19,8 @@ instance Show JSON where
             prettyPrint (JObject o) indent = "{" ++ showJSONObject o ++ "}"
                 where
                     showJSONObject [] = ""
-                    showJSONObject ((k, v):[]) = "\n" ++ replicate (indent + 2) ' ' ++ show k ++ ": " ++ prettyPrint v (indent + 2) ++ "\n" ++ replicate indent ' '
-                    showJSONObject ((k, v):t) = "\n" ++ replicate (indent + 2) ' ' ++ show k ++ ": " ++ prettyPrint v (indent + 2) ++ "," ++ showJSONObject t
+                    showJSONObject ((k, v):[]) = "\n" ++ replicate (indent + 2) ' ' ++ show (JString k) ++ ": " ++ prettyPrint v (indent + 2) ++ "\n" ++ replicate indent ' '
+                    showJSONObject ((k, v):t) = "\n" ++ replicate (indent + 2) ' ' ++ show (JString k) ++ ": " ++ prettyPrint v (indent + 2) ++ "," ++ showJSONObject t
             prettyPrint (JArray xs) indent = "[" ++ showJSONArray xs ++ "]"
                 where
                     showJSONArray [] = ""
