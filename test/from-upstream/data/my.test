@@ -159,3 +159,7 @@ false
 1 == .[2]
 [3,2,1]
 true
+
+if .[] | . , not then 1 else [1] end
+[true, false, true]
+1 [1] [1] 1 1 [1]

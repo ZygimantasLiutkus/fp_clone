@@ -8,8 +8,8 @@ data Filter = Identity | Parenthesis Filter | ObjIndex String | ArrIndex Int |
               Object [(Filter, Filter)] | ObjectKey String | DoNothing |
               Descent | And Filter Filter | Or Filter Filter | Not |
               Equal Filter Filter | NotEqual Filter Filter | Greater Filter Filter |
-              GreaterEqual Filter Filter | Less Filter Filter | LessEqual Filter Filter
-
+              GreaterEqual Filter Filter | Less Filter Filter | LessEqual Filter Filter |
+              Conditional Filter Filter Filter
 
 
 instance Show Filter where
@@ -40,6 +40,7 @@ instance Show Filter where
   show (GreaterEqual f1 f2) = show f1 ++ " >= " ++ show f2
   show (Less f1 f2) = show f1 ++ " < " ++ show f2
   show (LessEqual f1 f2) = show f1 ++ " <= " ++ show f2
+  show (Conditional f1 f2 f3) = "if " ++ show f1 ++ " then " ++ show f2 ++ " else " ++ show f3 ++ " end"
 
 instance Eq Filter where
   Identity == Identity = True
@@ -66,6 +67,7 @@ instance Eq Filter where
   GreaterEqual f1 f2 == GreaterEqual f3 f4 = f1 == f3 && f2 == f4
   Less f1 f2 == Less f3 f4 = f1 == f3 && f2 == f4
   LessEqual f1 f2 == LessEqual f3 f4 = f1 == f3 && f2 == f4
+  Conditional f1 f2 f3 == Conditional f4 f5 f6 = f1 == f4 && f2 == f5 && f3 == f6
   _ == _ = False
 
 data Config = ConfigC {filters :: Filter}

@@ -241,7 +241,7 @@ parseValue = do
     else return v
 
 parseConstructor :: Parser Filter
-parseConstructor = parsePipe
+parseConstructor = parseConditional <|> parsePipe
 
 parseLogical :: Parser Filter
 parseLogical = parseAnd <|> parseOr
@@ -276,7 +276,8 @@ parseNot = do
   return (Not)
 
 parseCompare :: Parser Filter
-parseCompare = parseEqual <|> parseNotEqual <|> parseGreater <|> parseGreaterEqual <|> parseLess <|> parseLessEqual
+parseCompare = parseEqual <|> parseNotEqual <|> parseGreater <|>
+               parseGreaterEqual <|> parseLess <|> parseLessEqual
 
 parseEqual :: Parser Filter
 parseEqual = do
@@ -319,6 +320,17 @@ parseLess = do
   _ <- token . char $ '<'
   f2 <- parseFilter
   return (Less f1 f2)
+
+parseConditional :: Parser Filter
+parseConditional = do
+  _ <- token . string $ "if"
+  f1 <- parseConstructor
+  _ <- token . string $ "then"
+  f2 <- parseConstructor
+  _ <- token . string $ "else"
+  f3 <- parseConstructor
+  _ <- token . string $ "end"
+  return (Conditional f1 f2 f3)
 
 parseConfig :: [String] -> Either String Config
 parseConfig s = case s of

@@ -126,6 +126,11 @@ compile (LessEqual f1 f2) inp = do
   r1 <- compile f1 inp
   r2 <- compile f2 inp
   return [JBool x | a <- r1, b <- r2, let x = (a <= b)]
+compile (Conditional c t f) inp = do
+  r1 <- compile c inp
+  r2 <- compile t inp
+  r3 <- compile f inp
+  return $ concat [if mapBool a then r2 else r3 | a <- r1]
 
 remainDescent :: JProgram [JSON]
 remainDescent inp = do
