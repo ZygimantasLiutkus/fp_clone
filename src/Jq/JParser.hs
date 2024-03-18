@@ -2,6 +2,7 @@ module Jq.JParser where
 
 import Parsing.Parsing
 import Jq.Json
+import Data.Char (chr)
 
 parseJNull :: Parser JSON
 parseJNull = do _ <- string "null"
@@ -41,7 +42,7 @@ parseUnicode = do
   h2 <- hexDigit
   h3 <- hexDigit
   h4 <- hexDigit
-  return (toEnum (read ("0x" ++ [h1, h2, h3, h4]) :: Int) :: Char)
+  return (chr (read ("0x" ++ [h1, h2, h3, h4]) :: Int))
 
 hexDigit :: Parser Char
 hexDigit = digit <|> sat (`elem` ['a'..'f']) <|> sat (`elem` ['A'..'F'])

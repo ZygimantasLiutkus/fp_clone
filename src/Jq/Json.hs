@@ -11,7 +11,7 @@ instance Show JSON where
     show json = prettyPrint json 0
         where
             prettyPrint (JNull) _ = "null"
-            prettyPrint (JString s) _ = "\"" ++ escapeString s ++ "\""
+            prettyPrint (JString s) _ = "\"" ++ s ++ "\""
             prettyPrint (JNumber n) _ = show n
             prettyPrint (JFloat f) _ = show f
             prettyPrint (JBool True) _ = "true"
