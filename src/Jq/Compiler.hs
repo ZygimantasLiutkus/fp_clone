@@ -39,10 +39,10 @@ compile (Slice from to) inp = do
     where
       getSlice :: Int -> (Int, Int) -> (Int, Int)
       getSlice l p = case p of
-        (f, t) | f > 0 && t > 0 -> (f, t)
-        (f, t) | f < 0 && t > 0 -> let f' = if abs f > l then 0 else l + f
+        (f, t) | f >= 0 && t >= 0 -> (f, t)
+        (f, t) | f < 0 && t >= 0 -> let f' = if abs f > l then 0 else l + f
                                    in (f', t)
-        (f, t) | f > 0 && t < 0 -> let t' = if abs t > l then 0 else l + t
+        (f, t) | f >= 0 && t < 0 -> let t' = if abs t > l then 0 else l + t
                                    in (f, t')
         (f, t) | f < 0 && t < 0 -> let f' = if abs f > l then 0 else l + f
                                        t' = if abs t > l then 0 else l + t
@@ -51,12 +51,17 @@ compile (Slice from to) inp = do
 compile (Iterator arr) inp = case inp of
   JArray a -> if null arr then return a else do
     ids <- mapM (\x -> compile x inp) arr
-    r <- mapJSONInts (concat ids)
+    r <- mapJSONIdent (concat ids)
     res <- mapM (\x -> compile x inp) r
     return $ concat res
   JObject o -> if null arr then return $ map snd o else do
     ids <- mapM (\x -> compile x inp) arr
-    r <- mapJSONStrings (concat ids)
+    r <- mapJSONIdent (concat ids)
+    res <- mapM (\x -> compile x inp) r
+    return $ concat res
+  JNull -> if null arr then Left "Cannot iterate over null" else do
+    ids <- mapM (\x -> compile x inp) arr
+    r <- mapJSONIdent (concat ids)
     res <- mapM (\x -> compile x inp) r
     return $ concat res
   _ -> Left "Iterator not applicable"
@@ -102,19 +107,17 @@ run :: JProgram [JSON] -> JSON -> Either String [JSON]
 run p j = p j
 
 
-mapJSONInts :: [JSON] -> Either String [Filter]
-mapJSONInts [] = return []
-mapJSONInts ((JNumber n):xs) = do
-  ns <- mapJSONInts xs
+mapJSONIdent :: [JSON] -> Either String [Filter]
+mapJSONIdent [] = return []
+mapJSONIdent ((JNumber n):xs) = do
+  ns <- mapJSONIdent xs
   return ((ArrIndex n):ns)
-mapJSONInts _ = Left "Cannot index array with non-integer"
-
-mapJSONStrings :: [JSON] -> Either String [Filter]
-mapJSONStrings [] = return []
-mapJSONStrings ((JString s):xs) = do
-  ss <- mapJSONStrings xs
+mapJSONIdent ((JString s):xs) = do
+  ss <- mapJSONIdent xs
   return ((ObjIndex s):ss)
-mapJSONStrings _ = Left "Cannot index object with non-string"
+mapJSONIdent (_:xs) = do
+  xss <- mapJSONIdent xs
+  return (DoNothing:xss)
 
 mapJSONSlice :: ([JSON], [JSON]) -> Either String ([Int], [Int])
 mapJSONSlice (from, to) = do
@@ -128,7 +131,7 @@ mapInts b ((JNumber n):xs) = do
   ns <- mapInts b xs
   return (n:ns)
 mapInts b (JNull:xs) = do
-  n <- if b then return (maxBound :: Int) else return (minBound :: Int)
+  n <- if b then return (maxBound :: Int) else return 0
   ns <- mapInts b xs
   return (n:ns)
 mapInts _ _ = Left "Cannot slice with non-integer"

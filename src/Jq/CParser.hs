@@ -92,13 +92,11 @@ parseFirstIterator = do
         else return (Iterator [])
     else do
       f <- parseConstructor
-      fs <- many (do _ <- token (char ',')
-                     parseConstructor)
       _ <- token . char $ ']'
       isOpt <- token (char '?') <|> return ' '
       if isOpt == '?'
-        then return (Optional (Iterator (f : fs)))
-        else return (Iterator (f : fs))
+        then return (Optional (Iterator [f]))
+        else return (Iterator [f])
 
 parseNextIterator :: Parser Filter
 parseNextIterator = do
@@ -112,13 +110,11 @@ parseNextIterator = do
         else return (Iterator [])
     else do
       f <- parseConstructor
-      fs <- many (do _ <- token (char ',')
-                     parseConstructor)
       _ <- token . char $ ']'
       isOpt <- token (char '?') <|> return ' '
       if isOpt == '?'
-        then return (Optional (Iterator (f : fs)))
-        else return (Iterator (f : fs))
+        then return (Optional (Iterator [f]))
+        else return (Iterator [f])
 
 
 parseDescent :: Parser Filter
@@ -152,7 +148,7 @@ makePipe (f : fs) = Pipe f (makePipe fs)
 
 parseFilter :: Parser Filter
 parseFilter =  do
-  f <- parseParenthesis <|> parseObjIndex <|> parseArrIndex <|>
+  f <- parseParenthesis <|> parseValue <|> parseObjIndex <|>
        parseSlice <|> parseIterator <|> parseDescent <|> parseIdentity
   isOpt <- token (char '?') <|> return ' '
   if isOpt == '?'
@@ -189,10 +185,8 @@ parseFArray = do
     then return (Array DoNothing)
     else do
       f <- parseConstructor
-      fs <- many (do _ <- token (char ',')
-                     parseConstructor)
       _ <- token . char $ ']'
-      return (Array (makeComma (f : fs)))
+      return (Array f)
 
 parseFObject :: Parser Filter
 parseFObject = do
@@ -249,7 +243,7 @@ parseValue = do
     else return v
 
 parseConstructor :: Parser Filter
-parseConstructor = parseValue <|> parsePipe
+parseConstructor = parsePipe
 
 parseConfig :: [String] -> Either String Config
 parseConfig s = case s of
