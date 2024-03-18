@@ -241,7 +241,7 @@ parseValue = do
     else return v
 
 parseConstructor :: Parser Filter
-parseConstructor = parseConditional <|> parsePipe
+parseConstructor = parseTryCatch <|> parseConditional <|> parsePipe
 
 parseLogical :: Parser Filter
 parseLogical = parseAnd <|> parseOr
@@ -331,6 +331,14 @@ parseConditional = do
   f3 <- parseConstructor
   _ <- token . string $ "end"
   return (Conditional f1 f2 f3)
+
+parseTryCatch :: Parser Filter
+parseTryCatch = do
+  _ <- token . string $ "try"
+  f1 <- parseConstructor
+  _ <- token . string $ "catch"
+  f2 <- parseConstructor
+  return (TryCatch f1 f2)
 
 parseConfig :: [String] -> Either String Config
 parseConfig s = case s of

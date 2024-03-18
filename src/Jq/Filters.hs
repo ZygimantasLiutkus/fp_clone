@@ -9,7 +9,7 @@ data Filter = Identity | Parenthesis Filter | ObjIndex String | ArrIndex Int |
               Descent | And Filter Filter | Or Filter Filter | Not |
               Equal Filter Filter | NotEqual Filter Filter | Greater Filter Filter |
               GreaterEqual Filter Filter | Less Filter Filter | LessEqual Filter Filter |
-              Conditional Filter Filter Filter
+              Conditional Filter Filter Filter | TryCatch Filter Filter
 
 
 instance Show Filter where
@@ -41,6 +41,7 @@ instance Show Filter where
   show (Less f1 f2) = show f1 ++ " < " ++ show f2
   show (LessEqual f1 f2) = show f1 ++ " <= " ++ show f2
   show (Conditional f1 f2 f3) = "if " ++ show f1 ++ " then " ++ show f2 ++ " else " ++ show f3 ++ " end"
+  show (TryCatch f1 f2) = "try " ++ show f1 ++ " catch " ++ show f2
 
 instance Eq Filter where
   Identity == Identity = True
@@ -68,6 +69,7 @@ instance Eq Filter where
   Less f1 f2 == Less f3 f4 = f1 == f3 && f2 == f4
   LessEqual f1 f2 == LessEqual f3 f4 = f1 == f3 && f2 == f4
   Conditional f1 f2 f3 == Conditional f4 f5 f6 = f1 == f4 && f2 == f5 && f3 == f6
+  TryCatch f1 f2 == TryCatch f3 f4 = f1 == f3 && f2 == f4
   _ == _ = False
 
 data Config = ConfigC {filters :: Filter}

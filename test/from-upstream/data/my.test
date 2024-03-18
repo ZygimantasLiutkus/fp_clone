@@ -163,3 +163,7 @@ true
 if .[] | . , not then 1 else [1] end
 [true, false, true]
 1 [1] [1] 1 1 [1]
+
+try .[1][1] catch .
+[true, false, true]
+"Iterator not applicable"

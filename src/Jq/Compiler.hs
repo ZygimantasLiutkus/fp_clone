@@ -131,6 +131,11 @@ compile (Conditional c t f) inp = do
   r2 <- compile t inp
   r3 <- compile f inp
   return $ concat [if mapBool a then r2 else r3 | a <- r1]
+compile (TryCatch f1 f2) inp =
+  let r = compile f1 inp
+  in case r of
+    Right x -> return x
+    Left e -> compile f2 (JString e)
 
 remainDescent :: JProgram [JSON]
 remainDescent inp = do
