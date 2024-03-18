@@ -102,6 +102,30 @@ compile (Or f1 f2) inp = do
   r2 <- compile f2 inp
   return [JBool x | a <- r1, b <- r2, let x = (mapBool a) || (mapBool b)]
 compile (Not) inp = return [JBool (not (mapBool inp))]
+compile (Equal f1 f2) inp = do
+  r1 <- compile f1 inp
+  r2 <- compile f2 inp
+  return [JBool x | a <- r1, b <- r2, let x = (a == b)]
+compile (NotEqual f1 f2) inp = do
+  r1 <- compile f1 inp
+  r2 <- compile f2 inp
+  return [JBool x | a <- r1, b <- r2, let x = (a /= b)]
+compile (Greater f1 f2) inp = do
+  r1 <- compile f1 inp
+  r2 <- compile f2 inp
+  return [JBool x | a <- r1, b <- r2, let x = (a > b)]
+compile (GreaterEqual f1 f2) inp = do
+  r1 <- compile f1 inp
+  r2 <- compile f2 inp
+  return [JBool x | a <- r1, b <- r2, let x = (a >= b)]
+compile (Less f1 f2) inp = do
+  r1 <- compile f1 inp
+  r2 <- compile f2 inp
+  return [JBool x | a <- r1, b <- r2, let x = (a < b)]
+compile (LessEqual f1 f2) inp = do
+  r1 <- compile f1 inp
+  r2 <- compile f2 inp
+  return [JBool x | a <- r1, b <- r2, let x = (a <= b)]
 
 remainDescent :: JProgram [JSON]
 remainDescent inp = do

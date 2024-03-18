@@ -6,7 +6,9 @@ data Filter = Identity | Parenthesis Filter | ObjIndex String | ArrIndex Int |
               Slice Filter Filter | Iterator [Filter] | Optional Filter | Comma Filter Filter |
               Pipe Filter Filter | Value JSON | Array Filter |
               Object [(Filter, Filter)] | ObjectKey String | DoNothing |
-              Descent | And Filter Filter | Or Filter Filter | Not
+              Descent | And Filter Filter | Or Filter Filter | Not |
+              Equal Filter Filter | NotEqual Filter Filter | Greater Filter Filter |
+              GreaterEqual Filter Filter | Less Filter Filter | LessEqual Filter Filter
 
 
 
@@ -32,6 +34,12 @@ instance Show Filter where
   show (And f1 f2) = show f1 ++ " and " ++ show f2
   show (Or f1 f2) = show f1 ++ " or " ++ show f2
   show (Not) = "not"
+  show (Equal f1 f2) = show f1 ++ " == " ++ show f2
+  show (NotEqual f1 f2) = show f1 ++ " != " ++ show f2
+  show (Greater f1 f2) = show f1 ++ " > " ++ show f2
+  show (GreaterEqual f1 f2) = show f1 ++ " >= " ++ show f2
+  show (Less f1 f2) = show f1 ++ " < " ++ show f2
+  show (LessEqual f1 f2) = show f1 ++ " <= " ++ show f2
 
 instance Eq Filter where
   Identity == Identity = True
@@ -52,6 +60,12 @@ instance Eq Filter where
   And f1 f2 == And f3 f4 = f1 == f3 && f2 == f4
   Or f1 f2 == Or f3 f4 = f1 == f3 && f2 == f4
   Not == Not = True
+  Equal f1 f2 == Equal f3 f4 = f1 == f3 && f2 == f4
+  NotEqual f1 f2 == NotEqual f3 f4 = f1 == f3 && f2 == f4
+  Greater f1 f2 == Greater f3 f4 = f1 == f3 && f2 == f4
+  GreaterEqual f1 f2 == GreaterEqual f3 f4 = f1 == f3 && f2 == f4
+  Less f1 f2 == Less f3 f4 = f1 == f3 && f2 == f4
+  LessEqual f1 f2 == LessEqual f3 f4 = f1 == f3 && f2 == f4
   _ == _ = False
 
 data Config = ConfigC {filters :: Filter}

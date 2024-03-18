@@ -134,9 +134,9 @@ makeComma (f : fs) = Comma f (makeComma fs)
 
 parsePipe :: Parser Filter
 parsePipe = do
-  f <- parseComma <|> parseLogical
+  f <- parseCompare <|> parseLogical <|> parseComma
   fs <- many (do _ <- token (char '|')
-                 parseComma <|> parseLogical)
+                 parseCompare <|> parseLogical <|> parseComma)
   return $ makePipe (f : fs)
 
 makePipe :: [Filter] -> Filter
@@ -249,7 +249,7 @@ parseLogical = parseAnd <|> parseOr
 parseAnd :: Parser Filter
 parseAnd = do
   f <- parseFilter
-  fs <- many (do _ <- token . string $ "and"
+  fs <- some (do _ <- token . string $ "and"
                  parseFilter)
   return $ makeAnd (f : fs)
 
@@ -261,7 +261,7 @@ makeAnd (f : fs) = And f (makeAnd fs)
 parseOr :: Parser Filter
 parseOr = do
   f <- parseFilter
-  fs <- many (do _ <- token . string $ "or"
+  fs <- some (do _ <- token . string $ "or"
                  parseFilter)
   return $ makeOr (f : fs)
 
@@ -274,6 +274,51 @@ parseNot :: Parser Filter
 parseNot = do
   _ <- token . string $ "not"
   return (Not)
+
+parseCompare :: Parser Filter
+parseCompare = parseEqual <|> parseNotEqual <|> parseGreater <|> parseGreaterEqual <|> parseLess <|> parseLessEqual
+
+parseEqual :: Parser Filter
+parseEqual = do
+  f1 <- parseFilter
+  _ <- token . string $ "=="
+  f2 <- parseFilter
+  return (Equal f1 f2)
+
+parseNotEqual :: Parser Filter
+parseNotEqual = do
+  f1 <- parseFilter
+  _ <- token . string $ "!="
+  f2 <- parseFilter
+  return (NotEqual f1 f2)
+
+parseGreaterEqual :: Parser Filter
+parseGreaterEqual = do
+  f1 <- parseFilter
+  _ <- token . string $ ">="
+  f2 <- parseFilter
+  return (GreaterEqual f1 f2)
+
+parseGreater :: Parser Filter
+parseGreater = do
+  f1 <- parseFilter
+  _ <- token . char $ '>'
+  f2 <- parseFilter
+  return (Greater f1 f2)
+
+parseLessEqual :: Parser Filter
+parseLessEqual = do
+  f1 <- parseFilter
+  _ <- token . string $ "<="
+  f2 <- parseFilter
+  return (LessEqual f1 f2)
+
+parseLess :: Parser Filter
+parseLess = do
+  f1 <- parseFilter
+  _ <- token . char $ '<'
+  f2 <- parseFilter
+  return (Less f1 f2)
 
 parseConfig :: [String] -> Either String Config
 parseConfig s = case s of

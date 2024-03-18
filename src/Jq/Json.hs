@@ -52,6 +52,31 @@ instance Eq JSON where
   JArray (h1:t1) == JArray (h2:t2) = h1 == h2 && JArray t1 == JArray t2
   _ == _ = False
 
+instance Ord JSON where
+  compare (JString s1) (JString s2) = compare s1 s2
+  compare (JNumber n1) (JNumber n2) = compare n1 n2
+  compare (JFloat f1) (JFloat f2) = compare f1 f2
+  compare (JBool b1) (JBool b2) = compare b1 b2
+  compare (JObject o1) (JObject o2) = compare o1 o2
+  compare (JArray a1) (JArray a2) = compare a1 a2
+  compare JNull JNull = EQ
+  compare JNull _ = LT
+  compare _ JNull = GT
+  compare (JBool _) _ = LT
+  compare _ (JBool _) = GT
+  compare (JNumber n) (JFloat f) = compare (fromIntegral n) f
+  compare (JFloat f) (JNumber n) = compare f (fromIntegral n)
+  compare (JNumber _) _ = LT
+  compare _ (JNumber _) = GT
+  compare (JFloat _) _ = LT
+  compare _ (JFloat _) = GT
+  compare (JString _) _ = LT
+  compare _ (JString _) = GT
+  compare (JArray _) _ = LT
+  compare _ (JArray _) = GT
+  compare (JObject _) _ = GT
+  compare _ (JObject _) = LT
+
 -- Smart constructors
 -- These are included for test purposes and
 -- aren't meant to correspond one to one with actual constructors you add to JSON datatype
